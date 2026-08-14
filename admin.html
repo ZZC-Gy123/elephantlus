@@ -171,6 +171,10 @@ tr:hover td{background:#FAFAFA}
       <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
       <span>数据管理</span>
     </div>
+    <div class="nav-item" data-page="contact">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      <span>联系方式</span>
+    </div>
   </nav>
   <div class="sidebar-footer">数据存储于浏览器本地<br>关闭浏览器不会丢失</div>
 </aside>
@@ -272,6 +276,62 @@ tr:hover td{background:#FAFAFA}
               恢复默认
             </button>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 联系方式管理 -->
+  <div id="page-contact" class="page" style="display:none">
+    <div class="topbar"><h1>联系方式管理</h1>
+      <div class="topbar-actions">
+        <button class="btn btn-primary" onclick="saveContactInfo()">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          保存设置
+        </button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h2>联系方式信息</h2></div>
+      <div class="card-body">
+        <p style="font-size:13px;color:var(--text-3);margin-bottom:20px;line-height:1.6">设置客户点击"咨询详情"时显示的联系方式。留空的项将不会在小程序中显示。</p>
+        <div class="form-group">
+          <label class="form-label">客服电话</label>
+          <input type="text" class="form-input" id="contact-phone" placeholder="如：400-xxx-xxxx">
+        </div>
+        <div class="form-group">
+          <label class="form-label">微信号</label>
+          <input type="text" class="form-input" id="contact-wechat" placeholder="如：elephantlux_kefu">
+        </div>
+        <div class="form-group">
+          <label class="form-label">QQ号</label>
+          <input type="text" class="form-input" id="contact-qq" placeholder="如：123456789">
+        </div>
+        <div class="form-group">
+          <label class="form-label">邮箱</label>
+          <input type="text" class="form-input" id="contact-email" placeholder="如：service@elephantlux.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">公司地址</label>
+          <input type="text" class="form-input" id="contact-address" placeholder="如：广东省深圳市XX区XX路XX号">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Facebook 主页链接</label>
+          <input type="text" class="form-input" id="contact-facebook" placeholder="如：https://facebook.com/elephantlux">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Instagram 主页链接</label>
+          <input type="text" class="form-input" id="contact-instagram" placeholder="如：https://instagram.com/elephantlux">
+        </div>
+        <div class="form-group">
+          <label class="form-label">客服二维码图片</label>
+          <p style="font-size:12px;color:var(--text-3);margin-bottom:8px">上传客服微信二维码图片，客户可扫码添加客服</p>
+          <div class="upload-area" onclick="document.getElementById('contact-qrcode-input').click()">
+            <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="var(--text-3)" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <p style="font-size:13px;color:var(--text-3);margin-top:8px">点击上传二维码图片</p>
+            <input type="file" id="contact-qrcode-input" accept="image/*" style="display:none" onchange="handleQRCodeUpload(event)">
+          </div>
+          <div id="qrcode-preview" style="margin-top:12px"></div>
         </div>
       </div>
     </div>
@@ -623,6 +683,7 @@ document.querySelectorAll('.nav-item').forEach(item => {
     if (page === 'dashboard') renderDashboard();
     if (page === 'products') renderProducts();
     if (page === 'categories') renderCategories();
+    if (page === 'contact') loadContactInfo();
   });
 });
 
@@ -971,6 +1032,68 @@ function resetData() {
   saveData(DB);
   showToast('已恢复默认数据');
   renderDashboard(); renderProducts(); renderCategories();
+}
+
+// ======================== 联系方式管理 ========================
+const DEFAULT_CONTACT = {
+  phone: '', wechat: '', qq: '', email: '', address: '',
+  facebook: '', instagram: '', qrcode: ''
+};
+
+function getContactInfo() {
+  try { return JSON.parse(localStorage.getItem('lamp_contact_info') || '{}'); }
+  catch(e) { return {...DEFAULT_CONTACT}; }
+}
+
+function loadContactInfo() {
+  const info = getContactInfo();
+  document.getElementById('contact-phone').value = info.phone || '';
+  document.getElementById('contact-wechat').value = info.wechat || '';
+  document.getElementById('contact-qq').value = info.qq || '';
+  document.getElementById('contact-email').value = info.email || '';
+  document.getElementById('contact-address').value = info.address || '';
+  document.getElementById('contact-facebook').value = info.facebook || '';
+  document.getElementById('contact-instagram').value = info.instagram || '';
+  renderQRCodePreview(info.qrcode);
+}
+
+let editingQRCode = null;
+
+function renderQRCodePreview(qrcode) {
+  editingQRCode = qrcode || null;
+  const container = document.getElementById('qrcode-preview');
+  if (!qrcode) { container.innerHTML = ''; return; }
+  container.innerHTML = `<div class="img-thumb" style="width:120px;height:120px"><img src="${qrcode}" alt="二维码"><button class="img-del" onclick="deleteQRCode()" style="width:22px;height:22px;font-size:14px">×</button></div>`;
+}
+
+function deleteQRCode() {
+  editingQRCode = null;
+  renderQRCodePreview(null);
+}
+
+function handleQRCodeUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) { showToast('图片不能超过2MB', 'error'); return; }
+  const reader = new FileReader();
+  reader.onload = e => { renderQRCodePreview(e.target.result); };
+  reader.readAsDataURL(file);
+  event.target.value = '';
+}
+
+function saveContactInfo() {
+  const info = {
+    phone: document.getElementById('contact-phone').value.trim(),
+    wechat: document.getElementById('contact-wechat').value.trim(),
+    qq: document.getElementById('contact-qq').value.trim(),
+    email: document.getElementById('contact-email').value.trim(),
+    address: document.getElementById('contact-address').value.trim(),
+    facebook: document.getElementById('contact-facebook').value.trim(),
+    instagram: document.getElementById('contact-instagram').value.trim(),
+    qrcode: editingQRCode || ''
+  };
+  localStorage.setItem('lamp_contact_info', JSON.stringify(info));
+  showToast('联系方式已保存');
 }
 
 // ======================== 初始化 ========================
