@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>ELEPHANTLUX · 3D体验</title>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+  <style>
+/* ======================== 基础重置 ======================== */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+:root {
+  --primary: #C9A227; --primary-light: #E8C84E; --primary-dark: #A8861B;
+  --primary-grad: linear-gradient(135deg, #C9A227 0%, #E8C84E 100%);
+  --bg: #F0F0F4; --bg-soft: #F7F7FA; --card-bg: #FFFFFF;
+  --text-1: #1C1C1E; --text-2: #555558; --text-3: #9A9AA0;
+  --border: #ECECF0; --border-soft: #F3F3F7;
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.05);
+  --shadow-md: 0 6px 20px rgba(0,0,0,0.08);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
+  --shadow-gold: 0 6px 24px rgba(201,162,39,0.3);
+  --glass: rgba(255,255,255,0.72);
+  --glass-border: rgba(255,255,255,0.5);
+  --radius: 14px; --radius-lg: 20px; --radius-xl: 24px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+html, body { width: 100%; height: 100%; overflow: hidden; font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; font-size: 14px; color: var(--text-1); background: var(--bg); }
+#app { width: 100%; max-width: 480px; height: 100%; margin: 0 auto; position: relative; overflow: hidden; background: var(--bg); }
+.view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, transform 0.3s ease; transform: translateX(30px); overflow: hidden; }
+.view.active { opacity: 1; visibility: visible; transform: translateX(0); }
+#scan-view.active { transform: translateX(0); }
+
+/* 扫码页 */
+#scan-view { background: linear-gradient(145deg, #08080F 0%, #14142B 40%, #1B1B3A 70%, #0F0F22 100%); display: flex; align-items: center; justify-content: center; }
+.scan-bg { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 25% 15%, rgba(201,162,39,0.10) 0%, transparent 45%), radial-gradient(circle at 75% 85%, rgba(100,80,200,0.08) 0%, transparent 45%), radial-gradient(circle at 50% 50%, rgba(201,162,39,0.04) 0%, transparent 70%); pointer-events: none; }
+.scan-bg::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px); background-size: 28px 28px; opacity: 0.5; }
+.scan-container { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; padding: 40px; }
+.scan-logo { margin-bottom: 36px; opacity: 0; animation: fadeInDown 0.8s 0.2s ease forwards; filter: drop-shadow(0 0 12px rgba(201,162,39,0.3)); }
+.scan-frame { position: relative; width: 170px; height: 170px; display: flex; align-items: center; justify-content: center; margin-bottom: 32px; opacity: 0; animation: fadeInUp 0.8s 0.5s ease forwards; }
+.scan-corner { position: absolute; width: 26px; height: 26px; border: 2.5px solid var(--primary-light); }
+.scan-corner.tl { top: 0; left: 0; border-right: none; border-bottom: none; border-radius: 8px 0 0 0; }
+.scan-corner.tr { top: 0; right: 0; border-left: none; border-bottom: none; border-radius: 0 8px 0 0; }
+.scan-corner.bl { bottom: 0; left: 0; border-right: none; border-top: none; border-radius: 0 0 0 8px; }
+.scan-corner.br { bottom: 0; right: 0; border-left: none; border-top: none; border-radius: 0 0 8px 0; }
+.scan-line { position: absolute; left: 10px; right: 10px; height: 2px; background: linear-gradient(90deg, transparent, var(--primary-light), transparent); box-shadow: 0 0 12px var(--primary-light); animation: scanMove 2.5s ease-in-out infinite; }
+.scan-qr { opacity: 0.92; filter: drop-shadow(0 0 8px rgba(201,162,39,0.15)); }
+.scan-title { font-size: 24px; font-weight: 700; color: #FFFFFF; letter-spacing: 3px; margin-bottom: 8px; opacity: 0; animation: fadeInUp 0.8s 0.7s ease forwards; }
+.scan-subtitle { font-size: 12px; color: rgba(255,255,255,0.4); letter-spacing: 3px; margin-bottom: 40px; opacity: 0; animation: fadeInUp 0.8s 0.9s ease forwards; }
+.scan-enter-btn { padding: 15px 60px; border: none; border-radius: 30px; background: linear-gradient(135deg, #C9A227, #E8C84E); color: #1A1A1A; font-size: 16px; font-weight: 600; letter-spacing: 3px; cursor: pointer; box-shadow: 0 8px 32px rgba(201,162,39,0.35), inset 0 1px 0 rgba(255,255,255,0.3); transition: transform 0.2s, box-shadow 0.2s; opacity: 0; animation: fadeInUp 0.8s 1.1s ease forwards; position: relative; overflow: hidden; }
+.scan-enter-btn::after { content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); animation: shimmer 3s infinite; }
+@keyframes shimmer { 0% { left: -100%; } 50%, 100% { left: 200%; } }
+.scan-enter-btn:active { transform: scale(0.96); box-shadow: 0 4px 16px rgba(201,162,39,0.25); }
+.scan-tip { margin-top: 20px; font-size: 11px; color: rgba(255,255,255,0.3); opacity: 0; animation: fadeInUp 0.8s 1.3s ease forwards; }
+@keyframes scanMove { 0% { top: 8px; } 50% { top: 140px; } 100% { top: 8px; } }
+@keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+/* 商品列表 */
+.app-header { position: sticky; top: 0; z-index: 10; background: var(--glass); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); box-shadow: var(--shadow-xs); border-bottom: 1px solid var(--border-soft); }
+.header-bar { display: flex; align-items: center; gap: 10px; padding: 14px 16px 8px; }
+.header-brand { display: flex; align-items: center; gap: 6px; font-size: 19px; font-weight: 800; white-space: nowrap; letter-spacing: -0.5px; }
+.brand-icon { font-size: 22px; }
+.brand-logo { height: 30px; width: auto; object-fit: contain; }
+.header-search { flex: 1; display: flex; align-items: center; gap: 6px; background: var(--bg); border-radius: 20px; padding: 8px 14px; color: var(--text-3); border: 1px solid var(--border-soft); transition: border-color 0.2s; }
+.header-search:focus-within { border-color: var(--primary-light); }
+.header-search input { border: none; background: none; outline: none; font-size: 13px; color: var(--text-1); width: 100%; }
+.header-search input::placeholder { color: var(--text-3); }
+.category-nav { display: flex; gap: 6px; padding: 6px 12px 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.category-nav::-webkit-scrollbar { display: none; }
+.category-item { flex-shrink: 0; padding: 7px 18px; border-radius: 18px; font-size: 13px; font-weight: 500; color: var(--text-2); background: transparent; cursor: pointer; transition: all 0.25s cubic-bezier(0.4,0,0.2,1); }
+.category-item.active { background: var(--primary-grad); color: #fff; font-weight: 600; box-shadow: var(--shadow-gold); }
+.product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 8px 14px; overflow-y: auto; -webkit-overflow-scrolling: touch; height: calc(100% - 120px); padding-bottom: 30px; }
+.product-card { background: var(--card-bg); border-radius: var(--radius); overflow: hidden; cursor: pointer; box-shadow: var(--shadow-sm); transition: transform 0.2s cubic-bezier(0.4,0,0.2,1), box-shadow 0.2s; }
+.product-card:active { transform: scale(0.97); box-shadow: var(--shadow-md); }
+.product-image { width: 100%; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.product-image::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 50% 40%, rgba(255,255,255,0.15) 0%, transparent 60%); pointer-events: none; }
+.product-image svg { width: 58%; height: 58%; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.18)); transition: transform 0.3s; position: relative; z-index: 1; }
+.product-card:active .product-image svg { transform: scale(1.08); }
+.product-image::after { content: '3D'; position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.35); backdrop-filter: blur(6px); color: #fff; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 8px; z-index: 2; }
+.product-info { padding: 10px 12px 12px; }
+.product-name { font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-1); }
+.product-category { font-size: 11px; color: var(--text-3); margin-top: 4px; }
+.grid-bottom-tip { text-align: center; padding: 16px 0 24px; font-size: 12px; color: var(--text-3); }
+
+/* 详情页 */
+#detail-view { background: var(--bg); }
+.detail-header { position: absolute; top: 0; left: 0; right: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--glass); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); box-shadow: var(--shadow-xs); border-bottom: 1px solid var(--border-soft); }
+.back-btn { background: none; border: none; padding: 4px; cursor: pointer; color: var(--text-1); display: flex; align-items: center; }
+.detail-header-title { font-size: 16px; font-weight: 700; }
+.detail-header-right { width: 24px; }
+.detail-scroll { height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-top: 52px; padding-bottom: 80px; }
+.detail-image { width: 100%; aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; position: relative; }
+.detail-image::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(ellipse at 50% 35%, rgba(255,255,255,0.2) 0%, transparent 65%); pointer-events: none; }
+.detail-image svg { width: 55%; height: 65%; filter: drop-shadow(0 10px 24px rgba(0,0,0,0.22)); position: relative; z-index: 1; }
+.detail-3d-badge { position: absolute; bottom: 14px; right: 14px; background: rgba(0,0,0,0.4); backdrop-filter: blur(10px); color: #fff; font-size: 11px; font-weight: 600; padding: 6px 14px; border-radius: 16px; display: flex; align-items: center; gap: 5px; cursor: pointer; transition: background 0.2s, transform 0.2s; z-index: 2; }
+.detail-3d-badge:active { transform: scale(0.92); background: rgba(201,162,39,0.7); }
+.detail-info { background: var(--card-bg); margin: 12px 14px; border-radius: var(--radius-lg); padding: 22px; box-shadow: var(--shadow-sm); }
+.detail-name { font-size: 21px; font-weight: 800; line-height: 1.4; letter-spacing: -0.3px; }
+.detail-tag { display: inline-block; margin-top: 10px; padding: 4px 12px; border-radius: 10px; font-size: 11px; font-weight: 500; background: rgba(201,162,39,0.1); color: var(--primary-dark); }
+.detail-desc { margin-top: 14px; font-size: 14px; line-height: 1.75; color: var(--text-2); }
+.detail-section-title { font-size: 15px; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.detail-section-title::before { content: ''; width: 4px; height: 15px; background: var(--primary-grad); border-radius: 2px; }
+.detail-specs, .detail-features { background: var(--card-bg); margin: 10px 14px; border-radius: var(--radius-lg); padding: 22px; box-shadow: var(--shadow-sm); }
+.spec-row { display: flex; justify-content: space-between; align-items: center; padding: 11px 0; border-bottom: 1px solid var(--border-soft); font-size: 13px; }
+.spec-row:last-child { border-bottom: none; }
+.spec-label { color: var(--text-3); }
+.spec-value { font-weight: 600; }
+.feature-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; }
+.feature-icon { flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px; background: rgba(201,162,39,0.08); display: flex; align-items: center; justify-content: center; color: var(--primary); }
+.feature-text h4 { font-size: 13px; font-weight: 700; }
+.feature-text p { font-size: 12px; color: var(--text-3); margin-top: 3px; line-height: 1.6; }
+.detail-footer { position: absolute; bottom: 0; left: 0; right: 0; z-index: 10; padding: 12px 16px calc(14px + var(--safe-bottom)); background: var(--glass); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); box-shadow: 0 -2px 16px rgba(0,0,0,0.04); border-top: 1px solid var(--border-soft); }
+.view-3d-btn { width: 100%; padding: 15px; border: none; border-radius: var(--radius); background: var(--primary-grad); color: #1A1A1A; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--shadow-gold); transition: transform 0.2s, box-shadow 0.2s; }
+.view-3d-btn:active { transform: scale(0.98); box-shadow: 0 4px 12px rgba(201,162,39,0.2); }
+
+/* 商品详情介绍 */
+.detail-description { background: var(--card-bg); margin: 10px 14px; border-radius: var(--radius-lg); padding: 22px; box-shadow: var(--shadow-sm); }
+.detail-desc-content { font-size: 14px; line-height: 1.85; color: var(--text-2); }
+.detail-desc-content p { margin-bottom: 12px; }
+.detail-desc-content p:last-child { margin-bottom: 0; }
+.detail-desc-content img { width: 100%; border-radius: var(--radius); margin: 12px 0; }
+.detail-desc-content strong { color: var(--text-1); font-weight: 700; }
+
+/* 相关图片 */
+.detail-gallery { background: var(--card-bg); margin: 10px 14px; border-radius: var(--radius-lg); padding: 22px; box-shadow: var(--shadow-sm); }
+.gallery-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; }
+.gallery-item { width: 100%; aspect-ratio: 1; border-radius: var(--radius); overflow: hidden; cursor: pointer; background: var(--bg); }
+.gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
+.gallery-item:active img { transform: scale(1.08); }
+
+/* 图片大图查看器 */
+.gallery-viewer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 200; background: rgba(0,0,0,0.92); display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: opacity 0.3s; }
+.gallery-viewer.active { opacity: 1; visibility: visible; }
+.gallery-viewer img { max-width: 95%; max-height: 85%; border-radius: 8px; }
+.gallery-viewer-close { position: absolute; top: 16px; right: 16px; width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.15); border: none; color: #fff; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.gallery-viewer-counter { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.6); font-size: 13px; }
+.gallery-viewer-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.12); border: none; color: #fff; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.gallery-viewer-nav.prev { left: 12px; }
+.gallery-viewer-nav.next { right: 12px; }
+
+/* 3D查看器 */
+.overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; background: linear-gradient(180deg, #F8F8FC 0%, #E8E8EE 100%); opacity: 0; visibility: hidden; transition: opacity 0.3s ease; display: flex; flex-direction: column; }
+.overlay.active { opacity: 1; visibility: visible; }
+.viewer-header { display: flex; align-items: center; justify-content: space-between; padding: calc(14px + env(safe-area-inset-top, 0px)) 16px calc(14px + var(--safe-bottom)); background: var(--glass); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); box-shadow: var(--shadow-xs); border-bottom: 1px solid var(--border-soft); z-index: 5; }
+.viewer-close, .viewer-rotate-btn { background: none; border: none; padding: 8px; cursor: pointer; color: var(--text-1); display: flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 500; border-radius: 10px; transition: background 0.2s; }
+.viewer-close:active, .viewer-rotate-btn:active { background: var(--bg); }
+.viewer-rotate-btn.active { color: var(--primary); background: rgba(201,162,39,0.1); }
+.viewer-rotate-btn.active span { color: var(--primary); }
+.viewer-title { font-size: 15px; font-weight: 700; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.viewer-canvas-wrap { flex: 1; position: relative; overflow: hidden; }
+.viewer-canvas-wrap canvas { display: block; width: 100% !important; height: 100% !important; }
+.viewer-loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 3; }
+.viewer-loading p { margin-top: 16px; font-size: 13px; color: var(--text-3); }
+.loading-ring { width: 44px; height: 44px; margin: 0 auto; border: 3px solid rgba(201,162,39,0.15); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.viewer-footer { padding: 14px 16px calc(14px + var(--safe-bottom)); background: var(--glass); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); z-index: 5; border-top: 1px solid var(--border-soft); }
+.viewer-hint { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; color: var(--text-3); }
+.viewer-hint svg { flex-shrink: 0; opacity: 0.6; }
+.viewer-360 { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; background: linear-gradient(180deg, #F8F8FC 0%, #E8E8EE 100%); }
+.viewer-360 img { max-width: 88%; max-height: 88%; object-fit: contain; border-radius: 16px; box-shadow: 0 12px 40px rgba(0,0,0,0.15); user-select: none; -webkit-user-drag: none; pointer-events: none; }
+.viewer-360-hint { position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-3); background: var(--glass); padding: 7px 16px; border-radius: 18px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); transition: opacity 0.4s ease; border: 1px solid var(--border-soft); box-shadow: var(--shadow-xs); }
+.viewer-360-progress { position: absolute; top: 0; left: 0; height: 3px; background: var(--primary-grad); transition: width 0.1s; border-radius: 0 2px 2px 0; }
+.empty-state { grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--text-3); }
+.empty-state p { font-size: 14px; margin-top: 12px; }
+@media (min-width: 481px) { body { background: linear-gradient(135deg, #D8D8E0 0%, #C8C8D2 100%); } #app { box-shadow: 0 0 60px rgba(0,0,0,0.15); } }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div id="scan-view" class="view active">
+      <div class="scan-bg"></div>
+      <div class="scan-container">
+        <div class="scan-logo">
+          <img src="logo.png" alt="ELEPHANTLUX" style="height:48px;width:auto;filter:brightness(0) invert(1);">
+        </div>
+        <div class="scan-frame">
+          <div class="scan-corner tl"></div><div class="scan-corner tr"></div>
+          <div class="scan-corner bl"></div><div class="scan-corner br"></div>
+          <div class="scan-line"></div>
+          <div class="scan-qr">
+            <svg viewBox="0 0 100 100" width="120" height="120">
+              <rect x="10" y="10" width="25" height="25" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2"/><rect x="15" y="15" width="15" height="15" fill="rgba(255,255,255,0.2)"/>
+              <rect x="65" y="10" width="25" height="25" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2"/><rect x="70" y="15" width="15" height="15" fill="rgba(255,255,255,0.2)"/>
+              <rect x="10" y="65" width="25" height="25" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2"/><rect x="15" y="70" width="15" height="15" fill="rgba(255,255,255,0.2)"/>
+              <rect x="45" y="10" width="8" height="8" fill="rgba(255,255,255,0.15)"/><rect x="58" y="10" width="5" height="5" fill="rgba(255,255,255,0.15)"/>
+              <rect x="45" y="22" width="5" height="8" fill="rgba(255,255,255,0.15)"/><rect x="55" y="25" width="10" height="5" fill="rgba(255,255,255,0.15)"/>
+              <rect x="45" y="40" width="5" height="5" fill="rgba(255,255,255,0.15)"/><rect x="55" y="40" width="8" height="8" fill="rgba(255,255,255,0.15)"/>
+              <rect x="68" y="42" width="5" height="5" fill="rgba(255,255,255,0.15)"/><rect x="80" y="40" width="8" height="5" fill="rgba(255,255,255,0.15)"/>
+              <rect x="42" y="52" width="8" height="8" fill="rgba(255,255,255,0.15)"/><rect x="55" y="55" width="5" height="5" fill="rgba(255,255,255,0.15)"/>
+              <rect x="65" y="50" width="8" height="5" fill="rgba(255,255,255,0.15)"/><rect x="78" y="52" width="8" height="8" fill="rgba(255,255,255,0.15)"/>
+              <rect x="42" y="65" width="5" height="5" fill="rgba(255,255,255,0.15)"/><rect x="52" y="68" width="8" height="8" fill="rgba(255,255,255,0.15)"/>
+              <rect x="65" y="65" width="5" height="5" fill="rgba(255,255,255,0.15)"/><rect x="75" y="70" width="8" height="5" fill="rgba(255,255,255,0.15)"/>
+              <rect x="42" y="78" width="8" height="5" fill="rgba(255,255,255,0.15)"/><rect x="55" y="80" width="5" height="8" fill="rgba(255,255,255,0.15)"/>
+              <rect x="68" y="78" width="8" height="5" fill="rgba(255,255,255,0.15)"/><rect x="80" y="80" width="8" height="8" fill="rgba(255,255,255,0.15)"/>
+            </svg>
+          </div>
+        </div>
+        <p class="scan-title">ELEPHANTLUX</p>
+        <p class="scan-subtitle">3D实景体验 · 沉浸式选灯</p>
+        <button class="scan-enter-btn" id="enter-btn"><span>进入展厅</span></button>
+        <p class="scan-tip">扫码即可进入，无需下载</p>
+      </div>
+    </div>
+
+    <div id="list-view" class="view">
+      <header class="app-header">
+        <div class="header-bar">
+          <div class="header-brand"><img src="logo.png" alt="ELEPHANTLUX" class="brand-logo"></div>
+          <div class="header-search">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="搜索灯具..." id="search-input">
+          </div>
+        </div>
+        <nav class="category-nav" id="category-nav"></nav>
+      </header>
+      <main class="product-grid" id="product-grid"></main>
+      <div class="grid-bottom-tip"><span>— 已展示全部灯具 —</span></div>
+    </div>
+
+    <div id="detail-view" class="view">
+      <header class="detail-header">
+        <button class="back-btn" id="detail-back"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
+        <span class="detail-header-title">商品详情</span>
+        <div class="detail-header-right"></div>
+      </header>
+      <div class="detail-scroll" id="detail-content"></div>
+      <div class="detail-footer">
+        <button class="view-3d-btn" id="consult-btn">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 10h.01M12 10h.01M16 10h.01"/></svg>
+          <span>咨询详情</span>
+        </button>
+      </div>
+    </div>
+
+    <div id="viewer-overlay" class="overlay">
+      <div class="viewer-header">
+        <button class="viewer-close" id="viewer-close"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        <span class="viewer-title" id="viewer-title">3D查看</span>
+        <button class="viewer-rotate-btn" id="viewer-rotate-btn"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7"/><polyline points="21 3 21 9 15 9"/></svg><span>自动旋转</span></button>
+      </div>
+      <div class="viewer-canvas-wrap" id="viewer-container">
+        <div class="viewer-loading" id="viewer-loading"><div class="loading-ring"></div><p>3D模型加载中...</p></div>
+      </div>
+      <div class="viewer-footer" id="viewer-footer">
+        <div class="viewer-hint" id="viewer-hint-3d"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0-6 0z"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg><span>单指拖动旋转 · 双指缩放查看细节</span></div>
+        <div class="viewer-hint" id="viewer-hint-360" style="display:none"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12a9 9 0 1 0 9-9"/><polyline points="3 4 3 10 9 10"/></svg><span>左右拖动旋转 · 点击自动旋转按钮360°浏览</span></div>
+      </div>
+    </div>
+  </div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+/* ======================== 商品数据 ======================== */
+const _defaultCategories = [
+  { id: 'all', name: '全部' }, { id: 'chandelier', name: '吊灯' },
+  { id: 'table-lamp', name: '台灯' }, { id: 'floor-lamp', name: '落地灯' },
+  { id: 'wall-lamp', name: '壁灯' }, { id: 'ceiling-lamp', name: '吸顶灯' },
+];
+
+const _defaultProducts = [
+  { id: 'c1', name: '凡尔赛水晶吊灯', category: 'chandelier', modelType: 'chandelier', gradient: 'linear-gradient(145deg, #2C1810, #6B4423)', description: '灵感源自凡尔赛宫的奢华水晶吊灯，精选K9水晶珠帘，搭配仿古铜艺灯架。六臂烛台设计，光线透过水晶折射出璀璨光影，为空间增添法式古典的优雅格调。', specs: [{label:'材质',value:'K9水晶 + 铜艺灯架'},{label:'尺寸',value:'直径60cm × 高48cm'},{label:'光源',value:'E14灯泡 × 6'},{label:'功率',value:'6 × 40W (max)'},{label:'色温',value:'2700K 暖黄光'},{label:'适用面积',value:'15-25㎡'},{label:'风格',value:'法式复古'}], features: [{icon:'sparkle',title:'K9水晶',desc:'高透光率水晶，折射光彩夺目'},{icon:'craft',title:'手工铜艺',desc:'传统铜艺锻造，色泽温润'},{icon:'light',title:'六臂光源',desc:'六灯位设计，光照均匀'}] },
+  { id: 'c2', name: '北欧极简枝形吊灯', category: 'chandelier', modelType: 'chandelier', gradient: 'linear-gradient(145deg, #2C3E50, #4A6FA5)', description: '北欧极简风格枝形吊灯，哑光白色灯臂配磨砂玻璃灯罩。线条流畅简约，不挑空间风格，适合现代简约、北欧风的客厅与餐厅空间。', specs: [{label:'材质',value:'烤漆铁艺 + 磨砂玻璃'},{label:'尺寸',value:'直径52cm × 高35cm'},{label:'光源',value:'G9灯珠 × 5'},{label:'功率',value:'5 × 5W LED'},{label:'色温',value:'3000K 暖白光'},{label:'适用面积',value:'10-20㎡'},{label:'风格',value:'北欧极简'}], features: [{icon:'sparkle',title:'磨砂灯罩',desc:'柔光磨砂玻璃，光线均匀不刺眼'},{icon:'craft',title:'烤漆工艺',desc:'多层烤漆，防锈耐久'},{icon:'light',title:'LED节能',desc:'G9 LED光源，省电耐用'}] },
+  { id: 'c3', name: '复古黄铜分子吊灯', category: 'chandelier', modelType: 'chandelier', gradient: 'linear-gradient(145deg, #3E2723, #795548)', description: '以分子结构为灵感的复古黄铜吊灯，球形磨砂灯罩散布于黄铜枝干之上，造型独特富有艺术感。适合 loft 工业风、复古风的客厅与吧台区域。', specs: [{label:'材质',value:'黄铜 + 磨砂玻璃球'},{label:'尺寸',value:'直径70cm × 高40cm'},{label:'光源',value:'E27灯泡 × 7'},{label:'功率',value:'7 × 6W LED'},{label:'色温',value:'2700K 暖黄光'},{label:'适用面积',value:'20-35㎡'},{label:'风格',value:'工业复古'}], features: [{icon:'sparkle',title:'分子造型',desc:'独特分子结构设计，艺术感十足'},{icon:'craft',title:'实心黄铜',desc:'实心黄铜枝干，质感厚重'},{icon:'light',title:'七灯位',desc:'七个球形灯罩，光照范围大'}] },
+  { id: 't1', name: '暖光氛围台灯', category: 'table-lamp', modelType: 'table-lamp', gradient: 'linear-gradient(145deg, #4A2C2A, #8B5E3C)', description: '经典圆筒布艺台灯，暖白灯罩搭配胡桃木底座，营造温馨柔和的居家氛围。适合放置于床头柜、书桌或客厅边几，是阅读与放松的理想伴侣。', specs: [{label:'材质',value:'胡桃木 + 亚麻布罩'},{label:'尺寸',value:'直径26cm × 高38cm'},{label:'光源',value:'E27灯泡 × 1'},{label:'功率',value:'1 × 8W LED'},{label:'色温',value:'2700K 暖黄光'},{label:'适用面积',value:'3-8㎡'},{label:'风格',value:'日式简约'}], features: [{icon:'sparkle',title:'亚麻灯罩',desc:'天然亚麻面料，光线柔和不刺眼'},{icon:'craft',title:'胡桃木底座',desc:'北美黑胡桃木，纹理自然'},{icon:'light',title:'触控开关',desc:'三档亮度触控调节'}] },
+  { id: 't2', name: '几何创意台灯', category: 'table-lamp', modelType: 'table-lamp', gradient: 'linear-gradient(145deg, #1A237E, #3949AB)', description: '几何折线造型的创意台灯，金属灯杆以折线勾勒出现代感轮廓，搭配圆柱磨砂灯罩。极简设计语言，适合现代风格的办公桌与书房空间。', specs: [{label:'材质',value:'哑光金属 + 磨砂PC罩'},{label:'尺寸',value:'直径18cm × 高42cm'},{label:'光源',value:'内置LED模组'},{label:'功率',value:'7W'},{label:'色温',value:'3000K-5000K 可调'},{label:'适用面积',value:'2-5㎡'},{label:'风格',value:'现代简约'}], features: [{icon:'sparkle',title:'无极调光',desc:'亮度色温自由调节'},{icon:'craft',title:'折线设计',desc:'几何折线造型，设计感强'},{icon:'light',title:'USB供电',desc:'支持USB接口，方便连接'}] },
+  { id: 't3', name: '黄铜复古台灯', category: 'table-lamp', modelType: 'table-lamp', gradient: 'linear-gradient(145deg, #33691E, #558B2F)', description: '英伦复古黄铜台灯，经典钟形灯罩配做旧黄铜灯杆，散发出浓郁的书卷气息。适合复古书房、英式客厅等空间，彰显主人品味。', specs: [{label:'材质',value:'做旧黄铜 + 布艺灯罩'},{label:'尺寸',value:'直径22cm × 高36cm'},{label:'光源',value:'E14灯泡 × 1'},{label:'功率',value:'1 × 40W (max)'},{label:'色温',value:'2700K 暖黄光'},{label:'适用面积',value:'2-6㎡'},{label:'风格',value:'英伦复古'}], features: [{icon:'sparkle',title:'做旧工艺',desc:'手工做旧处理，复古韵味十足'},{icon:'craft',title:'钟形灯罩',desc:'经典钟形设计，聚光效果好'},{icon:'light',title:'拉线开关',desc:'复古拉线开关，怀旧体验'}] },
+  { id: 'f1', name: '北欧立式落地灯', category: 'floor-lamp', modelType: 'floor-lamp', gradient: 'linear-gradient(145deg, #263238, #4E6E7E)', description: '北欧风格立式落地灯，修长灯杆搭配锥形布艺灯罩，造型简洁大方。放置于沙发旁或阅读角，为您提供温暖舒适的局部照明体验。', specs: [{label:'材质',value:'烤漆铁艺 + 亚麻布罩'},{label:'尺寸',value:'直径35cm × 高155cm'},{label:'光源',value:'E27灯泡 × 1'},{label:'功率',value:'1 × 12W LED'},{label:'色温',value:'3000K 暖白光'},{label:'适用面积',value:'5-10㎡'},{label:'风格',value:'北欧简约'}], features: [{icon:'sparkle',title:'锥形灯罩',desc:'锥形布罩设计，聚光阅读'},{icon:'craft',title:'加重底座',desc:'大理石加重底座，稳固防倒'},{icon:'light',title:'脚踏开关',desc:'便捷脚踏开关，轻松控制'}] },
+  { id: 'f2', name: '弧形阅读落地灯', category: 'floor-lamp', modelType: 'floor-lamp', gradient: 'linear-gradient(145deg, #4A148C, #7B1FA2)', description: '弧形悬臂落地灯，优雅弧线灯杆将光源延伸至沙发上方，不占地面空间却能提供精准的阅读照明。大理石底座配亮面金属灯杆，奢华与实用兼得。', specs: [{label:'材质',value:'亮面金属 + 大理石底座'},{label:'尺寸',value:'直径40cm × 高180cm'},{label:'光源',value:'E27灯泡 × 1'},{label:'功率',value:'1 × 15W LED'},{label:'色温',value:'3000K 暖白光'},{label:'适用面积',value:'8-15㎡'},{label:'风格',value:'现代轻奢'}], features: [{icon:'sparkle',title:'弧形悬臂',desc:'优雅弧线设计，悬臂可调节'},{icon:'craft',title:'大理石底座',desc:'天然大理石底座，沉稳大气'},{icon:'light',title:'精准照明',desc:'光源悬于头顶，阅读无死角'}] },
+  { id: 'f3', name: '现代极简落地灯', category: 'floor-lamp', modelType: 'floor-lamp', gradient: 'linear-gradient(145deg, #212121, #424242)', description: '极简圆柱落地灯，一体化柱形LED光源，360度环绕发光。哑光黑色金属外壳，造型如同一根光之立柱，既是照明也是空间中的艺术装置。', specs: [{label:'材质',value:'哑光铝合金 + PC扩散罩'},{label:'尺寸',value:'直径15cm × 高160cm'},{label:'光源',value:'内置LED模组'},{label:'功率',value:'18W'},{label:'色温',value:'2700K-6500K 可调'},{label:'适用面积',value:'8-12㎡'},{label:'风格',value:'极简现代'}], features: [{icon:'sparkle',title:'360°发光',desc:'柱形环绕发光，光照均匀'},{icon:'craft',title:'铝合金外壳',desc:'航空铝材，散热性能优异'},{icon:'light',title:'智能调光',desc:'支持APP控制亮度和色温'}] },
+  { id: 'w1', name: '简约水晶壁灯', category: 'wall-lamp', modelType: 'wall-lamp', gradient: 'linear-gradient(145deg, #1B5E20, #2E7D32)', description: '简约方形水晶壁灯，透明水晶灯罩折射出钻石般的光芒，搭配拉丝镍金属背板。适合走廊、卧室床头墙面，营造精致典雅的光影氛围。', specs: [{label:'材质',value:'K9水晶 + 拉丝镍背板'},{label:'尺寸',value:'宽12cm × 高18cm × 伸出8cm'},{label:'光源',value:'G9灯珠 × 2'},{label:'功率',value:'2 × 5W LED'},{label:'色温',value:'3000K 暖白光'},{label:'适用面积',value:'2-5㎡'},{label:'风格',value:'现代简约'}], features: [{icon:'sparkle',title:'水晶折射',desc:'K9水晶灯罩，光影璀璨'},{icon:'craft',title:'拉丝镍面',desc:'拉丝镍金属背板，防指纹'},{icon:'light',title:'双光源',desc:'双G9灯珠，照明更均匀'}] },
+  { id: 'w2', name: '复古铜艺壁灯', category: 'wall-lamp', modelType: 'wall-lamp', gradient: 'linear-gradient(145deg, #BF360C, #D84315)', description: '美式复古铜艺壁灯，做旧古铜灯臂配水波纹玻璃灯罩，温暖的灯光透过玻璃形成迷人的光影效果。适合复古风走廊、楼梯间和卧室背景墙。', specs: [{label:'材质',value:'做旧铜艺 + 水波纹玻璃'},{label:'尺寸',value:'宽16cm × 高22cm × 伸出12cm'},{label:'光源',value:'E14灯泡 × 1'},{label:'功率',value:'1 × 40W (max)'},{label:'色温',value:'2700K 暖黄光'},{label:'适用面积',value:'2-6㎡'},{label:'风格',value:'美式复古'}], features: [{icon:'sparkle',title:'水波纹玻璃',desc:'手工吹制水波纹玻璃，光影独特'},{icon:'craft',title:'手工铜艺',desc:'手工锻造做旧，每盏独一无二'},{icon:'light',title:'防眩设计',desc:'灯罩朝下设计，不刺眼'}] },
+  { id: 'w3', name: '现代LED上下壁灯', category: 'wall-lamp', modelType: 'wall-lamp', gradient: 'linear-gradient(145deg, #01579B, #0277BD)', description: '现代极简LED上下发光壁灯，上下双向投光设计，在墙面上形成对称的光晕效果。铝合金拉丝外壳，适合现代风格的客厅背景墙和走廊。', specs: [{label:'材质',value:'拉丝铝合金 + 亚克力'},{label:'尺寸',value:'宽25cm × 高8cm × 伸出4cm'},{label:'光源',value:'内置LED模组 × 2'},{label:'功率',value:'2 × 6W LED'},{label:'色温',value:'3000K 暖白光'},{label:'适用面积',value:'3-8㎡'},{label:'风格',value:'现代极简'}], features: [{icon:'sparkle',title:'上下投光',desc:'双向发光设计，墙面光晕对称'},{icon:'craft',title:'铝合金体',desc:'一体成型铝材，散热优良'},{icon:'light',title:'IP54防水',desc:'适合室内及半户外使用'}] },
+  { id: 'ce1', name: '简约圆形吸顶灯', category: 'ceiling-lamp', modelType: 'ceiling-lamp', gradient: 'linear-gradient(145deg, #37474F, #546E7A)', description: '超薄简约圆形吸顶灯，仅2.5cm厚度，紧贴天花板不压抑。高亮LED模组配合乳白亚克力面罩，光线柔和不刺眼，是卧室、走廊的理想选择。', specs: [{label:'材质',value:'铝合金边框 + 亚克力面罩'},{label:'尺寸',value:'直径40cm × 厚2.5cm'},{label:'光源',value:'内置LED模组'},{label:'功率',value:'24W'},{label:'色温',value:'3000K-6000K 可调'},{label:'适用面积',value:'10-15㎡'},{label:'风格',value:'简约现代'}], features: [{icon:'sparkle',title:'超薄设计',desc:'仅2.5cm厚度，紧贴天花板'},{icon:'craft',title:'亚克力罩',desc:'高透光亚克力，光线均匀'},{icon:'light',title:'三色变光',desc:'暖光/自然光/白光自由切换'}] },
+  { id: 'ce2', name: '智能调光吸顶灯', category: 'ceiling-lamp', modelType: 'ceiling-lamp', gradient: 'linear-gradient(145deg, #4527A0, #6A1B9A)', description: '智能WiFi吸顶灯，支持手机APP和语音控制。可调节亮度和色温，内置多种场景模式。星空纹面罩设计，即使关闭也是一件精美的天花板装饰。', specs: [{label:'材质',value:'铝合金 + 星纹亚克力'},{label:'尺寸',value:'直径55cm × 厚3.5cm'},{label:'光源',value:'内置LED双色温模组'},{label:'功率',value:'36W'},{label:'色温',value:'2700K-6500K 可调'},{label:'适用面积',value:'15-25㎡'},{label:'风格',value:'智能现代'}], features: [{icon:'sparkle',title:'智能控制',desc:'支持APP/语音/遥控三种方式'},{icon:'craft',title:'星纹面罩',desc:'星空纹理面罩，装饰性强'},{icon:'light',title:'场景模式',desc:'内置阅读/影院/助眠等场景'}] },
+  { id: 'ce3', name: '环形LED吸顶灯', category: 'ceiling-lamp', modelType: 'ceiling-lamp', gradient: 'linear-gradient(145deg, #004D40, #00695C)', description: '环形造型LED吸顶灯，独特的圆环设计让光线从中心向四周均匀扩散。无频闪高显色LED，还原物体真实色彩，适合客厅、餐厅等大空间。', specs: [{label:'材质',value:'铝合金 + 磨砂亚克力'},{label:'尺寸',value:'外径50cm × 内径30cm × 厚4cm'},{label:'光源',value:'内置LED环形模组'},{label:'功率',value:'32W'},{label:'色温',value:'4000K 自然光'},{label:'适用面积',value:'12-20㎡'},{label:'风格',value:'现代简约'}], features: [{icon:'sparkle',title:'环形发光',desc:'360°环形光源，无暗区'},{icon:'craft',title:'高显色指数',desc:'Ra≥90，还原真实色彩'},{icon:'light',title:'无频闪',desc:'DC直流驱动，护眼无频闪'}] },
+];
+
+/* 从后台管理读取数据（localStorage），无则用默认数据 */
+let categories, products;
+try {
+  const _stored = localStorage.getItem('lamp_admin_data');
+  if (_stored) {
+    const _data = JSON.parse(_stored);
+    categories = _data.categories || _defaultCategories;
+    products = _data.products || _defaultProducts;
+  } else {
+    categories = _defaultCategories;
+    products = _defaultProducts;
+  }
+} catch(e) {
+  categories = _defaultCategories;
+  products = _defaultProducts;
+}
+
+function getCategoryName(catId) { const cat = categories.find(c => c.id === catId); return cat ? cat.name : ''; }
+
+function getLampSVG(type) {
+  const s = 'rgba(255,255,255,0.85)';
+  const svgs = {
+    chandelier: `<svg viewBox="0 0 100 120" fill="none" stroke="${s}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="50" y1="8" x2="50" y2="20"/><ellipse cx="50" cy="22" rx="14" ry="4"/><line x1="50" y1="26" x2="50" y2="38"/><circle cx="50" cy="40" r="4" fill="rgba(255,220,100,0.5)" stroke="none"/><path d="M50 42 Q30 50 24 65"/><path d="M50 42 Q70 50 76 65"/><path d="M50 42 Q40 52 35 68"/><path d="M50 42 Q60 52 65 68"/><path d="M50 42 L50 62"/><circle cx="24" cy="65" r="4" fill="rgba(255,220,100,0.7)" stroke="none"/><circle cx="76" cy="65" r="4" fill="rgba(255,220,100,0.7)" stroke="none"/><circle cx="35" cy="68" r="4" fill="rgba(255,220,100,0.7)" stroke="none"/><circle cx="65" cy="68" r="4" fill="rgba(255,220,100,0.7)" stroke="none"/><circle cx="50" cy="62" r="4" fill="rgba(255,220,100,0.7)" stroke="none"/><line x1="24" y1="69" x2="24" y2="76"/><line x1="76" y1="69" x2="76" y2="76"/><line x1="35" y1="72" x2="35" y2="80"/><line x1="65" y1="72" x2="65" y2="80"/><line x1="50" y1="66" x2="50" y2="75"/><circle cx="24" cy="78" r="2" fill="rgba(200,220,255,0.5)" stroke="none"/><circle cx="76" cy="78" r="2" fill="rgba(200,220,255,0.5)" stroke="none"/><circle cx="35" cy="82" r="2" fill="rgba(200,220,255,0.5)" stroke="none"/><circle cx="65" cy="82" r="2" fill="rgba(200,220,255,0.5)" stroke="none"/><circle cx="50" cy="77" r="2" fill="rgba(200,220,255,0.5)" stroke="none"/></svg>`,
+    'table-lamp': `<svg viewBox="0 0 100 120" fill="none" stroke="${s}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M32 30 L68 30 L62 58 L38 58 Z"/><path d="M32 30 Q32 26 36 26 L64 26 Q68 26 68 30"/><line x1="50" y1="58" x2="50" y2="86"/><ellipse cx="50" cy="88" rx="20" ry="5"/><ellipse cx="50" cy="86" rx="20" ry="4" fill="rgba(255,255,255,0.05)"/><circle cx="50" cy="44" r="3" fill="rgba(255,220,100,0.7)" stroke="none"/><line x1="42" y1="44" x2="38" y2="44" opacity="0.4"/><line x1="58" y1="44" x2="62" y2="44" opacity="0.4"/></svg>`,
+    'floor-lamp': `<svg viewBox="0 0 100 120" fill="none" stroke="${s}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M36 12 L64 12 L58 34 L42 34 Z"/><path d="M36 12 Q36 8 40 8 L60 8 Q64 8 64 12"/><line x1="50" y1="34" x2="50" y2="102"/><ellipse cx="50" cy="106" rx="24" ry="6"/><ellipse cx="50" cy="103" rx="24" ry="5" fill="rgba(255,255,255,0.05)"/><circle cx="50" cy="22" r="3" fill="rgba(255,220,100,0.7)" stroke="none"/><line x1="44" y1="22" x2="40" y2="22" opacity="0.4"/><line x1="56" y1="22" x2="60" y2="22" opacity="0.4"/></svg>`,
+    'wall-lamp': `<svg viewBox="0 0 100 120" fill="none" stroke="${s}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="14" y="18" width="6" height="84" rx="3" fill="rgba(255,255,255,0.1)"/><line x1="20" y1="50" x2="45" y2="50"/><path d="M40 35 L72 35 L66 68 L46 68 Z"/><path d="M40 35 Q40 31 44 31 L68 31 Q72 31 72 35"/><circle cx="56" cy="50" r="3" fill="rgba(255,220,100,0.7)" stroke="none"/><line x1="48" y1="50" x2="44" y2="50" opacity="0.4"/><line x1="64" y1="50" x2="68" y2="50" opacity="0.4"/></svg>`,
+    'ceiling-lamp': `<svg viewBox="0 0 100 120" fill="none" stroke="${s}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="25" y1="18" x2="75" y2="18"/><rect x="20" y="18" width="60" height="3" fill="rgba(255,255,255,0.1)" stroke="none"/><path d="M25 21 Q25 55 50 62 Q75 55 75 21"/><ellipse cx="50" cy="21" rx="25" ry="3" fill="rgba(255,255,255,0.05)"/><circle cx="50" cy="42" r="6" fill="rgba(255,220,100,0.6)" stroke="none"/><circle cx="50" cy="42" r="10" fill="none" stroke="rgba(255,220,100,0.2)" stroke-width="1.5"/><circle cx="50" cy="42" r="15" fill="none" stroke="rgba(255,220,100,0.1)" stroke-width="1"/></svg>`,
+  };
+  return svgs[type] || '';
+}
+
+function getFeatureIcon(name) {
+  const icons = {
+    sparkle: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L13.5 8.5L20 10L13.5 11.5L12 18L10.5 11.5L4 10L10.5 8.5L12 2Z"/></svg>`,
+    craft: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>`,
+    light: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.2 1 2V17h6v-.3c0-.8.4-1.5 1-2A7 7 0 0 0 12 2z"/></svg>`,
+  };
+  return icons[name] || '';
+}
+
+/* ======================== 3D模型 ======================== */
+function cylinderBetween(p1, p2, rTop, rBottom, material) {
+  const dir = new THREE.Vector3().subVectors(p2, p1);
+  const len = dir.length();
+  const geo = new THREE.CylinderGeometry(rTop, rBottom, len, 12);
+  const mesh = new THREE.Mesh(geo, material);
+  mesh.position.copy(p1).add(p2).multiplyScalar(0.5);
+  const up = new THREE.Vector3(0, 1, 0);
+  mesh.quaternion.setFromUnitVectors(up, dir.clone().normalize());
+  return mesh;
+}
+function setShadows(group) { group.traverse(c => { if (c.isMesh) { c.castShadow = true; c.receiveShadow = true; } }); }
+function centerModel(group) { const box = new THREE.Box3().setFromObject(group); const center = box.getCenter(new THREE.Vector3()); group.position.sub(center); return group; }
+
+function createMaterials() {
+  return {
+    gold: new THREE.MeshStandardMaterial({ color: 0xD4AF37, metalness: 0.9, roughness: 0.22 }),
+    brass: new THREE.MeshStandardMaterial({ color: 0xC9A227, metalness: 0.85, roughness: 0.28 }),
+    brassDark: new THREE.MeshStandardMaterial({ color: 0x9A7B1F, metalness: 0.8, roughness: 0.35 }),
+    darkMetal: new THREE.MeshStandardMaterial({ color: 0x2A2A2A, metalness: 0.8, roughness: 0.35 }),
+    whiteMetal: new THREE.MeshStandardMaterial({ color: 0xE8E8E8, metalness: 0.5, roughness: 0.45 }),
+    chrome: new THREE.MeshStandardMaterial({ color: 0xC0C0C0, metalness: 0.95, roughness: 0.15 }),
+    crystal: new THREE.MeshPhysicalMaterial({ color: 0xffffff, metalness: 0.1, roughness: 0.05, transmission: 0.88, transparent: true, opacity: 0.75, ior: 1.5 }),
+    shadeFabric: new THREE.MeshStandardMaterial({ color: 0xF0E6D2, roughness: 0.92, metalness: 0.0, side: THREE.DoubleSide, emissive: 0xFFE5B4, emissiveIntensity: 0.18 }),
+    wood: new THREE.MeshStandardMaterial({ color: 0x6B4423, roughness: 0.68, metalness: 0.05 }),
+    marble: new THREE.MeshStandardMaterial({ color: 0xEAEAEA, roughness: 0.28, metalness: 0.1 }),
+    bulb: new THREE.MeshStandardMaterial({ color: 0xFFFFE0, emissive: 0xFFD700, emissiveIntensity: 1.3 }),
+    ledStrip: new THREE.MeshStandardMaterial({ color: 0xFFE5A0, emissive: 0xFFCC44, emissiveIntensity: 1.8 }),
+  };
+}
+
+function createChandelier() {
+  const group = new THREE.Group(); const mat = createMaterials();
+  const mount = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.12, 0.04, 24), mat.gold); mount.position.y = 1.0; group.add(mount);
+  group.add(cylinderBetween(new THREE.Vector3(0, 0.98, 0), new THREE.Vector3(0, 0.78, 0), 0.014, 0.014, mat.gold));
+  const body = new THREE.Mesh(new THREE.SphereGeometry(0.07, 24, 24), mat.gold); body.position.y = 0.72; group.add(body);
+  const ringTop = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.01, 8, 36), mat.gold); ringTop.position.y = 0.66; ringTop.rotation.x = Math.PI/2; group.add(ringTop);
+  for (let i = 0; i < 6; i++) {
+    const angle = (i/6)*Math.PI*2, startR = 0.1, armLength = 0.36, tilt = 0.38;
+    const sX = Math.cos(angle)*startR, sY = 0.66, sZ = Math.sin(angle)*startR;
+    const eR = startR + armLength*Math.cos(tilt), eX = Math.cos(angle)*eR, eY = sY - armLength*Math.sin(tilt), eZ = Math.sin(angle)*eR;
+    group.add(cylinderBetween(new THREE.Vector3(sX,sY,sZ), new THREE.Vector3(eX,eY,eZ), 0.01, 0.014, mat.gold));
+    const node = new THREE.Mesh(new THREE.SphereGeometry(0.015, 12, 12), mat.gold); node.position.set((sX+eX)/2,(sY+eY)/2,(sZ+eZ)/2); group.add(node);
+    const holder = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.032, 0.05, 12), mat.gold); holder.position.set(eX, eY+0.025, eZ); group.add(holder);
+    const hRing = new THREE.Mesh(new THREE.TorusGeometry(0.03, 0.005, 8, 16), mat.gold); hRing.position.set(eX, eY+0.05, eZ); hRing.rotation.x = Math.PI/2; group.add(hRing);
+    const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.032, 16, 16), mat.bulb); bulb.position.set(eX, eY+0.085, eZ); group.add(bulb);
+    group.add(cylinderBetween(new THREE.Vector3(eX,eY,eZ), new THREE.Vector3(eX,eY-0.04,eZ), 0.004, 0.004, mat.gold));
+    const crystal = new THREE.Mesh(new THREE.OctahedronGeometry(0.022, 0), mat.crystal); crystal.position.set(eX, eY-0.06, eZ); crystal.rotation.y = Math.PI/4; group.add(crystal);
+  }
+  group.add(cylinderBetween(new THREE.Vector3(0,0.66,0), new THREE.Vector3(0,0.48,0), 0.005, 0.005, mat.gold));
+  const pendant = new THREE.Mesh(new THREE.OctahedronGeometry(0.045, 0), mat.crystal); pendant.position.y = 0.41; pendant.rotation.y = Math.PI/4; group.add(pendant);
+  const ringBot = new THREE.Mesh(new THREE.TorusGeometry(0.11, 0.008, 8, 28), mat.gold); ringBot.position.y = 0.44; ringBot.rotation.x = Math.PI/2; group.add(ringBot);
+  for (let i = 0; i < 8; i++) { const a = (i/8)*Math.PI*2, x = Math.cos(a)*0.11, z = Math.sin(a)*0.11; group.add(cylinderBetween(new THREE.Vector3(x,0.44,z), new THREE.Vector3(x,0.39,z), 0.003, 0.003, mat.gold)); const d = new THREE.Mesh(new THREE.OctahedronGeometry(0.016, 0), mat.crystal); d.position.set(x, 0.36, z); d.rotation.y = Math.PI/4; group.add(d); }
+  const light = new THREE.PointLight(0xFFD700, 0.7, 3); light.position.set(0, 0.7, 0); group.add(light);
+  setShadows(group); return group;
+}
+
+function createTableLamp() {
+  const group = new THREE.Group(); const mat = createMaterials();
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.25, 0.05, 32), mat.wood); base.position.y = -0.55; group.add(base);
+  const baseTop = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.22, 0.035, 24), mat.wood); baseTop.position.y = -0.51; group.add(baseTop);
+  const baseRing = new THREE.Mesh(new THREE.TorusGeometry(0.24, 0.006, 8, 32), mat.brass); baseRing.position.y = -0.53; baseRing.rotation.x = Math.PI/2; group.add(baseRing);
+  const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.028, 0.52, 16), mat.wood); stem.position.y = -0.24; group.add(stem);
+  [0.0, -0.45].forEach(y => { const r = new THREE.Mesh(new THREE.TorusGeometry(0.028, 0.007, 8, 20), mat.brass); r.position.y = y; r.rotation.x = Math.PI/2; group.add(r); });
+  const fitter = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.025, 0.04, 12), mat.brass); fitter.position.y = 0.0; group.add(fitter);
+  const shade = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.155, 0.28, 36, 1, true), mat.shadeFabric); shade.position.y = 0.16; group.add(shade);
+  const topRim = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.006, 8, 36), mat.brass); topRim.position.y = 0.3; topRim.rotation.x = Math.PI/2; group.add(topRim);
+  const botRim = new THREE.Mesh(new THREE.TorusGeometry(0.155, 0.006, 8, 36), mat.brass); botRim.position.y = 0.02; botRim.rotation.x = Math.PI/2; group.add(botRim);
+  const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.055, 24, 24), mat.bulb); bulb.position.y = 0.16; group.add(bulb);
+  const light = new THREE.PointLight(0xFFD700, 0.9, 2); light.position.set(0, 0.16, 0); group.add(light);
+  setShadows(group); return group;
+}
+
+function createFloorLamp() {
+  const group = new THREE.Group(); const mat = createMaterials();
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.3, 0.04, 32), mat.marble); base.position.y = -1.0; group.add(base);
+  const baseTrans = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.28, 0.05, 24), mat.marble); baseTrans.position.y = -0.96; group.add(baseTrans);
+  const baseRing = new THREE.Mesh(new THREE.TorusGeometry(0.29, 0.008, 8, 32), mat.chrome); baseRing.position.y = -0.98; baseRing.rotation.x = Math.PI/2; group.add(baseRing);
+  const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.024, 1.72, 16), mat.darkMetal); stem.position.y = -0.08; group.add(stem);
+  [0.55, -0.2, -0.7].forEach(y => { const b = new THREE.Mesh(new THREE.TorusGeometry(0.022, 0.006, 8, 20), mat.chrome); b.position.y = y; b.rotation.x = Math.PI/2; group.add(b); });
+  const connector = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.018, 0.06, 12), mat.darkMetal); connector.position.y = 0.8; group.add(connector);
+  const shade = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.19, 0.24, 36, 1, true), mat.shadeFabric); shade.position.y = 0.95; group.add(shade);
+  const topRim = new THREE.Mesh(new THREE.TorusGeometry(0.09, 0.005, 8, 36), mat.darkMetal); topRim.position.y = 1.07; topRim.rotation.x = Math.PI/2; group.add(topRim);
+  const botRim = new THREE.Mesh(new THREE.TorusGeometry(0.19, 0.005, 8, 36), mat.darkMetal); botRim.position.y = 0.83; botRim.rotation.x = Math.PI/2; group.add(botRim);
+  const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.045, 20, 20), mat.bulb); bulb.position.y = 0.95; group.add(bulb);
+  const light = new THREE.PointLight(0xFFD700, 0.9, 2.5); light.position.set(0, 0.95, 0); group.add(light);
+  setShadows(group); return group;
+}
+
+function createWallLamp() {
+  const group = new THREE.Group(); const mat = createMaterials();
+  const wallPlate = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.13, 0.02), mat.brass); wallPlate.position.set(-0.28, 0, -0.1); group.add(wallPlate);
+  [-0.04, 0.04].forEach(y => { const s = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.006, 8), mat.brassDark); s.position.set(-0.28, y, -0.095); s.rotation.x = Math.PI/2; group.add(s); });
+  const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.26, 12), mat.brass); arm.position.set(-0.14, 0.04, 0); arm.rotation.z = Math.PI/2; group.add(arm);
+  const wJoint = new THREE.Mesh(new THREE.SphereGeometry(0.018, 16, 16), mat.brass); wJoint.position.set(-0.25, 0.04, 0); group.add(wJoint);
+  const sJoint = new THREE.Mesh(new THREE.SphereGeometry(0.018, 16, 16), mat.brass); sJoint.position.set(-0.01, 0.04, 0); group.add(sJoint);
+  const shade = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.1, 0.16, 28, 1, true), mat.shadeFabric); shade.position.set(0.07, 0.04, 0); shade.rotation.z = Math.PI/2; group.add(shade);
+  const shadeEnd = new THREE.Mesh(new THREE.CircleGeometry(0.07, 28), mat.shadeFabric); shadeEnd.position.set(-0.01, 0.04, 0); shadeEnd.rotation.y = -Math.PI/2; group.add(shadeEnd);
+  const openRing = new THREE.Mesh(new THREE.TorusGeometry(0.1, 0.005, 8, 28), mat.brass); openRing.position.set(0.15, 0.04, 0); openRing.rotation.y = Math.PI/2; group.add(openRing);
+  const endRing = new THREE.Mesh(new THREE.TorusGeometry(0.07, 0.004, 8, 28), mat.brass); endRing.position.set(-0.01, 0.04, 0); endRing.rotation.y = Math.PI/2; group.add(endRing);
+  const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.035, 20, 20), mat.bulb); bulb.position.set(0.07, 0.04, 0); group.add(bulb);
+  const finial = new THREE.Mesh(new THREE.SphereGeometry(0.014, 12, 12), mat.brass); finial.position.set(-0.02, 0.04, 0); group.add(finial);
+  const light = new THREE.PointLight(0xFFD700, 0.8, 1.8); light.position.set(0.07, 0.04, 0); group.add(light);
+  setShadows(group); return group;
+}
+
+function createCeilingLamp() {
+  const group = new THREE.Group(); const mat = createMaterials();
+  const mount = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.025, 36), mat.whiteMetal); mount.position.y = 0.32; group.add(mount);
+  const mountRing = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.007, 8, 36), mat.brass); mountRing.position.y = 0.31; mountRing.rotation.x = Math.PI/2; group.add(mountRing);
+  const dome = new THREE.Mesh(new THREE.SphereGeometry(0.24, 36, 18, 0, Math.PI*2, 0, Math.PI*0.58), mat.whiteMetal); dome.position.y = 0.32; group.add(dome);
+  const ledRing = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.014, 10, 40), mat.ledStrip); ledRing.position.y = 0.2; ledRing.rotation.x = Math.PI/2; group.add(ledRing);
+  const ledDisc = new THREE.Mesh(new THREE.CircleGeometry(0.16, 40), new THREE.MeshStandardMaterial({ color: 0xFFFFE0, emissive: 0xFFD700, emissiveIntensity: 1.2, side: THREE.DoubleSide })); ledDisc.position.y = 0.19; ledDisc.rotation.x = -Math.PI/2; group.add(ledDisc);
+  const outerRing = new THREE.Mesh(new THREE.TorusGeometry(0.24, 0.006, 8, 40), mat.brass); outerRing.position.y = 0.32; outerRing.rotation.x = Math.PI/2; group.add(outerRing);
+  const innerRing = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.005, 8, 32), mat.brass); innerRing.position.y = 0.18; innerRing.rotation.x = Math.PI/2; group.add(innerRing);
+  const centerCap = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.035, 0.02, 16), mat.brass); centerCap.position.y = 0.18; group.add(centerCap);
+  const light = new THREE.PointLight(0xFFD700, 1.2, 3.5); light.position.set(0, 0.1, 0); group.add(light);
+  setShadows(group); return group;
+}
+
+function createLampModel(type) {
+  const builders = { chandelier: createChandelier, 'table-lamp': createTableLamp, 'floor-lamp': createFloorLamp, 'wall-lamp': createWallLamp, 'ceiling-lamp': createCeilingLamp };
+  const model = (builders[type] || createTableLamp)();
+  centerModel(model); return model;
+}
+
+/* ======================== 3D查看器 ======================== */
+class Viewer3D {
+  constructor(container, modelType) {
+    this.container = container; this.modelType = modelType;
+    this.scene = null; this.camera = null; this.renderer = null; this.controls = null;
+    this.model = null; this.animationId = null; this.autoRotate = false;
+    this._disposed = false; this._onResize = this._onResize.bind(this);
+  }
+  init() {
+    try {
+      this.scene = new THREE.Scene();
+      const bgCanvas = document.createElement('canvas'); bgCanvas.width = 2; bgCanvas.height = 512;
+      const ctx = bgCanvas.getContext('2d'); const grad = ctx.createLinearGradient(0, 0, 0, 512);
+      grad.addColorStop(0, '#FAFAFC'); grad.addColorStop(0.5, '#F0F0F4'); grad.addColorStop(1, '#E4E4EA');
+      ctx.fillStyle = grad; ctx.fillRect(0, 0, 2, 512);
+      this.scene.background = new THREE.CanvasTexture(bgCanvas);
+      const w = this.container.clientWidth || 400, h = this.container.clientHeight || 600;
+      this.camera = new THREE.PerspectiveCamera(42, w/h, 0.1, 100); this.camera.position.set(0, 0.2, 2.8);
+      this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+      this.renderer.setSize(w, h); this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      this.renderer.shadowMap.enabled = true; this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      this.renderer.toneMapping = THREE.ACESFilmicToneMapping; this.renderer.toneMappingExposure = 1.1;
+      this.container.appendChild(this.renderer.domElement);
+      this._setupLights(); this._setupGround();
+      this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+      this.controls.enableDamping = true; this.controls.dampingFactor = 0.06;
+      this.controls.minDistance = 1.2; this.controls.maxDistance = 6; this.controls.autoRotateSpeed = 2.5;
+      this.controls.enablePan = false; this.controls.target.set(0, 0, 0); this.controls.update();
+      this._loadModel();
+      window.addEventListener('resize', this._onResize);
+      this._entryAnimation(); this._animate();
+      setTimeout(() => { const l = document.getElementById('viewer-loading'); if (l) { l.style.transition = 'opacity 0.4s'; l.style.opacity = '0'; setTimeout(() => l.style.display = 'none', 400); } }, 600);
+    } catch (err) { console.error('Viewer3D init error:', err); throw err; }
+  }
+  _setupLights() {
+    this.scene.add(new THREE.AmbientLight(0xffffff, 0.45));
+    const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(4, 6, 4); key.castShadow = true;
+    key.shadow.mapSize.set(1024, 1024); key.shadow.camera.near = 0.5; key.shadow.camera.far = 20;
+    key.shadow.camera.left = -3; key.shadow.camera.right = 3; key.shadow.camera.top = 3; key.shadow.camera.bottom = -3; key.shadow.bias = -0.0005;
+    this.scene.add(key);
+    const fill = new THREE.DirectionalLight(0xE8E8FF, 0.35); fill.position.set(-4, 2, -3); this.scene.add(fill);
+    this.scene.add(new THREE.HemisphereLight(0xFFFFFF, 0xE0E0E0, 0.35));
+    const warm = new THREE.DirectionalLight(0xFFE5B4, 0.2); warm.position.set(2, -1, 3); this.scene.add(warm);
+  }
+  _setupGround() { const g = new THREE.Mesh(new THREE.PlaneGeometry(8, 8), new THREE.ShadowMaterial({ opacity: 0.12 })); g.rotation.x = -Math.PI/2; g.position.y = -0.7; g.receiveShadow = true; this.scene.add(g); }
+  _loadModel() {
+    this.model = createLampModel(this.modelType); this.scene.add(this.model);
+    const box = new THREE.Box3().setFromObject(this.model); const size = box.getSize(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z);
+    if (this.controls) {
+      if (maxDim > 1.5) { this.camera.position.set(0, 0.2, 3.6); this.controls.minDistance = 1.8; this.controls.maxDistance = 7; }
+      else if (maxDim < 0.8) { this.camera.position.set(0, 0.1, 2.2); this.controls.minDistance = 1.0; this.controls.maxDistance = 5; }
+      this.controls.update();
+    }
+  }
+  _entryAnimation() {
+    if (!this.model) return; this.model.scale.set(0.01, 0.01, 0.01);
+    const dur = 600, start = performance.now();
+    const anim = () => { if (this._disposed) return; const t = Math.min((performance.now()-start)/dur, 1); const c1 = 1.70158, c3 = c1+1; const e = 1 + c3*Math.pow(t-1,3) + c1*Math.pow(t-1,2); const s = e; this.model.scale.set(s,s,s); if (t < 1) requestAnimationFrame(anim); };
+    requestAnimationFrame(anim);
+  }
+  toggleAutoRotate() { if (!this.controls) return false; this.autoRotate = !this.autoRotate; this.controls.autoRotate = this.autoRotate; return this.autoRotate; }
+  _onResize() { if (!this.camera || !this.renderer || this._disposed) return; const w = this.container.clientWidth, h = this.container.clientHeight; this.camera.aspect = w/h; this.camera.updateProjectionMatrix(); this.renderer.setSize(w, h); }
+  _animate() { if (this._disposed) return; this.animationId = requestAnimationFrame(() => this._animate()); if (this.controls) this.controls.update(); if (this.renderer && this.scene && this.camera) this.renderer.render(this.scene, this.camera); }
+  dispose() {
+    this._disposed = true; if (this.animationId) { cancelAnimationFrame(this.animationId); this.animationId = null; }
+    window.removeEventListener('resize', this._onResize);
+    if (this.controls) { this.controls.dispose(); this.controls = null; }
+    if (this.model) { this.model.traverse(c => { if (c.geometry) c.geometry.dispose(); if (c.material) { Array.isArray(c.material) ? c.material.forEach(m=>m.dispose()) : c.material.dispose(); } }); this.scene.remove(this.model); this.model = null; }
+    if (this.renderer) { this.renderer.dispose(); if (this.renderer.domElement?.parentNode) this.renderer.domElement.parentNode.removeChild(this.renderer.domElement); this.renderer = null; }
+    this.scene = null; this.camera = null;
+  }
+}
+
+/* ======================== 应用逻辑 ======================== */
+const state = { currentView: 'scan', currentCategory: 'all', currentProduct: null, viewer: null, searchKeyword: '' };
+
+function showView(viewId) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(viewId)?.classList.add('active');
+  state.currentView = viewId.replace('-view', '');
+  if (viewId === 'list-view') document.getElementById('product-grid')?.scrollTo(0, 0);
+}
+
+function enterApp() {
+  const btn = document.getElementById('enter-btn'); if (btn) { btn.style.transform = 'scale(0.95)'; setTimeout(() => btn.style.transform = '', 200); }
+  setTimeout(() => { showView('list-view'); renderCategories(); renderProducts(); }, 200);
+}
+
+function renderCategories() {
+  const nav = document.getElementById('category-nav'); if (!nav) return;
+  nav.innerHTML = categories.map(c => `<div class="category-item ${c.id===state.currentCategory?'active':''}" data-category="${c.id}">${c.name}</div>`).join('');
+  nav.querySelectorAll('.category-item').forEach(item => { item.addEventListener('click', () => { state.currentCategory = item.dataset.category; renderCategories(); renderProducts(); }); });
+}
+
+function renderProducts() {
+  const grid = document.getElementById('product-grid'); if (!grid) return;
+  let list = state.currentCategory === 'all' ? [...products] : products.filter(p => p.category === state.currentCategory);
+  if (state.searchKeyword) { const kw = state.searchKeyword.toLowerCase(); list = list.filter(p => p.name.toLowerCase().includes(kw) || getCategoryName(p.category).includes(kw)); }
+  if (list.length === 0) { grid.innerHTML = `<div class="empty-state"><svg viewBox="0 0 64 64" width="56" height="56" fill="none" stroke="#CCC" stroke-width="2"><circle cx="28" cy="28" r="18"/><line x1="42" y1="42" x2="54" y2="54" stroke-linecap="round"/></svg><p>未找到匹配的灯具</p></div>`; return; }
+  grid.innerHTML = list.map(p => `<div class="product-card" data-id="${p.id}"><div class="product-image" style="background:${p.gradient}">${getLampSVG(p.modelType)}</div><div class="product-info"><div class="product-name">${p.name}</div><div class="product-category">${getCategoryName(p.category)}</div></div></div>`).join('');
+  grid.querySelectorAll('.product-card').forEach(card => { card.addEventListener('click', () => { const p = products.find(x => x.id === card.dataset.id); if (p) showProductDetail(p); }); });
+}
+
+function showProductDetail(product) {
+  state.currentProduct = product;
+  const content = document.getElementById('detail-content');
+  const descHtml = product.detailDescription ? `<div class="detail-description"><div class="detail-section-title">商品详情</div><div class="detail-desc-content">${formatDetailText(product.detailDescription)}</div></div>` : '';
+  const galleryHtml = (product.galleryImages && product.galleryImages.length) ? `<div class="detail-gallery"><div class="detail-section-title">相关图片</div><div class="gallery-grid">${product.galleryImages.map((src,i) => `<div class="gallery-item" onclick="openGalleryViewer(${i})"><img src="${src}" alt=""></div>`).join('')}</div></div>` : '';
+  content.innerHTML = `
+    <div class="detail-image" style="background:${product.gradient}">${getLampSVG(product.modelType)}<div class="detail-3d-badge" id="detail-3d-badge">${product.images360&&product.images360.length?'<svg viewBox=\"0 0 24 24\" width=\"12\" height=\"12\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M3 12a9 9 0 1 0 9-9\"/><polyline points=\"3 4 3 10 9 10\"/></svg>360°查看':'<svg viewBox=\"0 0 24 24\" width=\"12\" height=\"12\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M12 2 L2 7 L12 12 L22 7 Z\"/><path d=\"M2 17 L12 22 L22 17\"/><path d=\"M2 12 L12 17 L22 12\"/></svg>支持3D查看'}</div></div>
+    <div class="detail-info"><h1 class="detail-name">${product.name}</h1><span class="detail-tag">${getCategoryName(product.category)}</span><p class="detail-desc">${product.description}</p></div>
+    <div class="detail-specs"><div class="detail-section-title">规格参数</div>${product.specs.map(s => `<div class="spec-row"><span class="spec-label">${s.label}</span><span class="spec-value">${s.value}</span></div>`).join('')}</div>
+    <div class="detail-features"><div class="detail-section-title">产品特点</div>${product.features.map(f => `<div class="feature-item"><div class="feature-icon">${getFeatureIcon(f.icon)}</div><div class="feature-text"><h4>${f.title}</h4><p>${f.desc}</p></div></div>`).join('')}</div>
+    ${descHtml}
+    ${galleryHtml}`;
+  showView('detail-view'); content.scrollTop = 0;
+  document.getElementById('detail-3d-badge')?.addEventListener('click', openViewer);
+}
+
+function formatDetailText(text) {
+  return text.split(/\n\n+/).map(para => `<p>${para.replace(/\n/g, '<br>')}</p>`).join('');
+}
+
+// ======================== 图片大图查看器 ========================
+let galleryViewerState = { images: [], index: 0 };
+
+function openGalleryViewer(index) {
+  if (!state.currentProduct || !state.currentProduct.galleryImages) return;
+  galleryViewerState.images = state.currentProduct.galleryImages;
+  galleryViewerState.index = index;
+  let viewer = document.getElementById('gallery-viewer');
+  if (!viewer) {
+    viewer = document.createElement('div');
+    viewer.id = 'gallery-viewer';
+    viewer.className = 'gallery-viewer';
+    viewer.innerHTML = `<button class="gallery-viewer-close" onclick="closeGalleryViewer()">&times;</button><button class="gallery-viewer-nav prev" onclick="galleryNav(-1)">&#8249;</button><img id="gallery-viewer-img" src="" onclick="event.stopPropagation()"><button class="gallery-viewer-nav next" onclick="galleryNav(1)">&#8250;</button><span class="gallery-viewer-counter" id="gallery-viewer-counter"></span>`;
+    viewer.addEventListener('click', (e) => { if (e.target === viewer) closeGalleryViewer(); });
+    document.body.appendChild(viewer);
+  }
+  updateGalleryViewer();
+  viewer.classList.add('active');
+}
+
+function updateGalleryViewer() {
+  const img = document.getElementById('gallery-viewer-img');
+  const counter = document.getElementById('gallery-viewer-counter');
+  if (img) img.src = galleryViewerState.images[galleryViewerState.index];
+  if (counter) counter.textContent = `${galleryViewerState.index + 1} / ${galleryViewerState.images.length}`;
+}
+
+function galleryNav(dir) {
+  const n = galleryViewerState.images.length;
+  galleryViewerState.index = ((galleryViewerState.index + dir) % n + n) % n;
+  updateGalleryViewer();
+}
+
+function closeGalleryViewer() {
+  const viewer = document.getElementById('gallery-viewer');
+  if (viewer) viewer.classList.remove('active');
+}
+
+// 暴露到全局作用域，供 onclick 调用
+window.openGalleryViewer = openGalleryViewer;
+window.galleryNav = galleryNav;
+window.closeGalleryViewer = closeGalleryViewer;
+
+// ======================== 360度图片查看器 ========================
+class Viewer360 {
+  constructor(container, images) {
+    this.container = container; this.images = images;
+    this.currentFrame = 0; this.isDragging = false;
+    this.startX = 0; this.startFrame = 0; this.velocity = 0;
+    this.lastDragX = 0; this.lastDragTime = 0;
+    this.autoRotate = false; this.autoRotateTimer = null;
+    this.autoPreviewTimer = null; this.momentumRAF = null;
+    this.el = null; this.imgEl = null; this.progressEl = null;
+    this.preloaded = []; this.hintEl = null;
+  }
+  init() {
+    this.container.innerHTML = '';
+    // 预加载所有图片
+    this.preloaded = this.images.map(src => { const img = new Image(); img.src = src; return img; });
+    this.el = document.createElement('div'); this.el.className = 'viewer-360';
+    this.imgEl = document.createElement('img'); this.imgEl.src = this.images[0]; this.imgEl.alt = '';
+    this.progressEl = document.createElement('div'); this.progressEl.className = 'viewer-360-progress';
+    this.progressEl.style.width = (100 / this.images.length) + '%';
+    this.hintEl = document.createElement('div'); this.hintEl.className = 'viewer-360-hint';
+    this.hintEl.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12a9 9 0 1 0 9-9"/><polyline points="3 4 3 10 9 10"/></svg><span>左右拖动旋转查看</span>';
+    this.el.appendChild(this.imgEl); this.el.appendChild(this.progressEl); this.el.appendChild(this.hintEl);
+    this.container.appendChild(this.el);
+    // 绑定交互
+    this._onDown = (e) => this._onPointerDown(e);
+    this._onMove = (e) => this._onPointerMove(e);
+    this._onUp = () => this._onPointerUp();
+    this.el.addEventListener('mousedown', this._onDown);
+    this.el.addEventListener('touchstart', this._onDown, { passive: false });
+    document.addEventListener('mousemove', this._onMove);
+    document.addEventListener('touchmove', this._onMove, { passive: false });
+    document.addEventListener('mouseup', this._onUp);
+    document.addEventListener('touchend', this._onUp);
+    // 隐藏loading
+    const loading = document.getElementById('viewer-loading');
+    if (loading) { loading.style.display = 'none'; }
+    // 自动预览旋转2.5秒
+    this._startAutoPreview();
+  }
+  _startAutoPreview() {
+    const total = Math.min(this.images.length, 24);
+    const interval = 2200 / total;
+    let count = 0;
+    this.autoPreviewTimer = setInterval(() => {
+      count++;
+      this.currentFrame = (this.currentFrame + 1) % this.images.length;
+      this._updateImage();
+      if (count >= total) { clearInterval(this.autoPreviewTimer); this.autoPreviewTimer = null; }
+    }, interval);
+  }
+  _updateImage() {
+    const n = this.images.length;
+    const idx = ((Math.round(this.currentFrame) % n) + n) % n;
+    if (this.imgEl.dataset.idx != idx) {
+      this.imgEl.src = this.images[idx];
+      this.imgEl.dataset.idx = idx;
+      this.progressEl.style.width = ((idx + 1) * 100 / n) + '%';
+    }
+  }
+  _getX(e) { return e.touches ? e.touches[0].clientX : e.clientX; }
+  _onPointerDown(e) {
+    e.preventDefault();
+    if (this.autoPreviewTimer) { clearInterval(this.autoPreviewTimer); this.autoPreviewTimer = null; }
+    if (this.momentumRAF) { cancelAnimationFrame(this.momentumRAF); this.momentumRAF = null; }
+    if (this.autoRotate) this.toggleAutoRotate();
+    this.isDragging = true;
+    this.startX = this._getX(e); this.startFrame = this.currentFrame;
+    this.lastDragX = this.startX; this.lastDragTime = Date.now(); this.velocity = 0;
+    if (this.hintEl) this.hintEl.style.opacity = '0';
+  }
+  _onPointerMove(e) {
+    if (!this.isDragging) return;
+    e.preventDefault();
+    const x = this._getX(e); const dx = x - this.startX;
+    const step = Math.max(15, this.container.offsetWidth / this.images.length / 1.2);
+    this.currentFrame = this.startFrame + dx / step;
+    const now = Date.now(); const dt = now - this.lastDragTime;
+    if (dt > 0) this.velocity = (x - this.lastDragX) / dt;
+    this.lastDragX = x; this.lastDragTime = now;
+    this._updateImage();
+  }
+  _onPointerUp() {
+    if (!this.isDragging) return;
+    this.isDragging = false;
+    if (Math.abs(this.velocity) > 0.03) this._applyMomentum();
+  }
+  _applyMomentum() {
+    const step = Math.max(15, this.container.offsetWidth / this.images.length / 1.2);
+    const animate = () => {
+      if (Math.abs(this.velocity) < 0.008) { this.momentumRAF = null; return; }
+      this.currentFrame += this.velocity * 16 / step;
+      this._updateImage();
+      this.velocity *= 0.94;
+      this.momentumRAF = requestAnimationFrame(animate);
+    };
+    this.momentumRAF = requestAnimationFrame(animate);
+  }
+  toggleAutoRotate() {
+    if (this.momentumRAF) { cancelAnimationFrame(this.momentumRAF); this.momentumRAF = null; }
+    if (this.autoPreviewTimer) { clearInterval(this.autoPreviewTimer); this.autoPreviewTimer = null; }
+    this.autoRotate = !this.autoRotate;
+    if (this.autoRotate) {
+      this.autoRotateTimer = setInterval(() => {
+        this.currentFrame = (this.currentFrame + 1) % this.images.length;
+        this._updateImage();
+      }, 60);
+    } else { clearInterval(this.autoRotateTimer); this.autoRotateTimer = null; }
+    return this.autoRotate;
+  }
+  dispose() {
+    if (this.autoRotateTimer) clearInterval(this.autoRotateTimer);
+    if (this.autoPreviewTimer) clearInterval(this.autoPreviewTimer);
+    if (this.momentumRAF) cancelAnimationFrame(this.momentumRAF);
+    document.removeEventListener('mousemove', this._onMove);
+    document.removeEventListener('touchmove', this._onMove);
+    document.removeEventListener('mouseup', this._onUp);
+    document.removeEventListener('touchend', this._onUp);
+    if (this.el) this.el.remove();
+    this.el = null; this.imgEl = null; this.progressEl = null;
+  }
+}
+
+async function openViewer() {
+  if (!state.currentProduct) return;
+  const overlay = document.getElementById('viewer-overlay');
+  const titleEl = document.getElementById('viewer-title');
+  const loading = document.getElementById('viewer-loading');
+  const rotateBtn = document.getElementById('viewer-rotate-btn');
+  overlay.classList.add('active'); titleEl.textContent = state.currentProduct.name;
+  if (loading) { loading.style.display = ''; loading.style.opacity = '1'; loading.innerHTML = '<div class="loading-ring"></div><p>加载中...</p>'; }
+  if (rotateBtn) rotateBtn.classList.remove('active');
+  await new Promise(r => setTimeout(r, 300));
+  try {
+    const container = document.getElementById('viewer-container');
+    if (state.viewer) { state.viewer.dispose(); state.viewer = null; }
+    // 如果有360度图片，使用360查看器
+    if (state.currentProduct.images360 && state.currentProduct.images360.length > 0) {
+      state.viewer = new Viewer360(container, state.currentProduct.images360);
+      state.viewer.init();
+      document.getElementById('viewer-hint-3d').style.display = 'none';
+      document.getElementById('viewer-hint-360').style.display = '';
+    } else {
+      // 否则使用3D模型查看器
+      if (loading) { loading.innerHTML = '<div class="loading-ring"></div><p>3D模型加载中...</p>'; }
+      state.viewer = new Viewer3D(container, state.currentProduct.modelType);
+      state.viewer.init();
+      document.getElementById('viewer-hint-3d').style.display = '';
+      document.getElementById('viewer-hint-360').style.display = 'none';
+    }
+  } catch (err) {
+    console.error('查看器加载失败:', err);
+    if (loading) { loading.innerHTML = '<div style="font-size:13px;color:#999;text-align:center;padding:20px;"><p style="margin-bottom:8px;">加载失败</p><p style="font-size:12px;">请检查网络连接后重试</p></div>'; }
+  }
+}
+
+function closeViewer() {
+  document.getElementById('viewer-overlay').classList.remove('active');
+  setTimeout(() => { if (state.viewer) { state.viewer.dispose(); state.viewer = null; } }, 300);
+}
+
+function toggleAutoRotate() {
+  if (!state.viewer) return;
+  const isOn = state.viewer.toggleAutoRotate();
+  const btn = document.getElementById('viewer-rotate-btn');
+  if (btn) { btn.classList.toggle('active', isOn); const span = btn.querySelector('span'); if (span) span.textContent = isOn ? '停止旋转' : '自动旋转'; }
+}
+
+function showConsultInfo() {
+  let toast = document.getElementById('consult-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'consult-toast';
+    toast.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.8);color:#fff;padding:24px 32px;border-radius:16px;font-size:14px;text-align:center;z-index:200;backdrop-filter:blur(12px);max-width:300px;line-height:1.8;';
+    document.body.appendChild(toast);
+  }
+  toast.innerHTML = '<div style="font-size:24px;margin-bottom:10px;">💬</div><p style="font-weight:600;margin-bottom:6px;">咨询详情</p><p style="font-size:13px;color:rgba(255,255,255,0.7);">请扫描下方二维码联系客服<br>获取更多产品信息与报价</p>';
+  toast.style.opacity = '1';
+  toast.style.transition = 'opacity 0.3s';
+  setTimeout(() => { toast.style.opacity = '0'; }, 2500);
+}
+
+// 事件绑定
+document.getElementById('enter-btn')?.addEventListener('click', enterApp);
+document.getElementById('detail-back')?.addEventListener('click', () => showView('list-view'));
+document.getElementById('view-3d-btn')?.addEventListener('click', openViewer);
+document.getElementById('consult-btn')?.addEventListener('click', showConsultInfo);
+document.getElementById('viewer-close')?.addEventListener('click', closeViewer);
+document.getElementById('viewer-rotate-btn')?.addEventListener('click', toggleAutoRotate);
+document.getElementById('search-input')?.addEventListener('input', e => { state.searchKeyword = e.target.value.trim(); renderProducts(); });
+</script>
+</body>
+</html>

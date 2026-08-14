@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>二维码生成器 · ELEPHANTLUX</title>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --primary: #C9A227; --primary-light: #F0D060;
+  --bg: #F5F5F7; --card-bg: #FFFFFF;
+  --text-1: #1A1A1A; --text-2: #666; --text-3: #999;
+  --border: #EEE; --radius: 14px;
+}
+body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.container { max-width: 460px; width: 100%; background: var(--card-bg); border-radius: 20px; padding: 36px 28px; box-shadow: 0 8px 32px rgba(0,0,0,0.08); }
+.logo { text-align: center; margin-bottom: 28px; }
+.logo img { height: 36px; }
+h1 { font-size: 20px; font-weight: 800; text-align: center; margin-bottom: 6px; }
+.subtitle { font-size: 13px; color: var(--text-3); text-align: center; margin-bottom: 28px; }
+.form-group { margin-bottom: 20px; }
+label { display: block; font-size: 13px; font-weight: 600; color: var(--text-2); margin-bottom: 8px; }
+input[type="url"] { width: 100%; padding: 14px 16px; border: 2px solid var(--border); border-radius: 12px; font-size: 14px; font-family: inherit; transition: border-color 0.2s; }
+input[type="url"]:focus { outline: none; border-color: var(--primary); }
+.btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+.btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: #fff; box-shadow: 0 4px 14px rgba(201,162,39,0.3); }
+.btn-primary:active { transform: scale(0.98); }
+.btn-secondary { background: var(--bg); color: var(--text-2); margin-top: 10px; }
+.btn-secondary:active { transform: scale(0.98); }
+.result { text-align: center; margin-top: 24px; display: none; }
+.result.show { display: block; animation: fadeIn 0.4s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.qr-wrapper { display: inline-block; padding: 16px; background: #fff; border-radius: 16px; border: 2px solid var(--border); }
+.qr-wrapper img { display: block; width: 240px; height: 240px; }
+.qr-info { margin-top: 16px; font-size: 13px; color: var(--text-2); word-break: break-all; }
+.steps { margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border); }
+.steps h2 { font-size: 14px; font-weight: 700; margin-bottom: 12px; }
+.steps ol { padding-left: 20px; }
+.steps li { font-size: 12px; color: var(--text-2); line-height: 1.8; margin-bottom: 4px; }
+.tip { background: #FFF9E6; border: 1px solid #F0D060; border-radius: 10px; padding: 12px 14px; margin-top: 16px; font-size: 12px; color: #8B6914; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="logo"><img src="logo.png" alt="ELEPHANTLUX" style="height:32px;filter:brightness(0) invert(0.15);"></div>
+  <h1>二维码生成器</h1>
+  <p class="subtitle">输入你的线上网址，一键生成扫码二维码</p>
+
+  <div class="form-group">
+    <label>线上网址</label>
+    <input type="url" id="url-input" placeholder="https://你的网址.vercel.app" value="">
+  </div>
+
+  <button class="btn btn-primary" onclick="generateQR()">生成二维码</button>
+  <button class="btn btn-secondary" onclick="downloadQR()" id="download-btn" style="display:none">下载二维码图片</button>
+
+  <div class="result" id="result">
+    <div class="qr-wrapper">
+      <img id="qr-img" src="" alt="二维码">
+    </div>
+    <p class="qr-info" id="qr-url"></p>
+  </div>
+
+  <div class="steps">
+    <h2>使用步骤</h2>
+    <ol>
+      <li>先按部署指南把小程序上传到 Vercel，获得线上网址</li>
+      <li>把网址粘贴到上方输入框</li>
+      <li>点击"生成二维码"</li>
+      <li>点击"下载二维码图片"保存</li>
+      <li>把二维码印在名片、宣传单、展厅展板上</li>
+      <li>客户用微信扫一扫即可打开小程序</li>
+    </ol>
+  </div>
+
+  <div class="tip">
+    提示：建议同时生成两个网址的二维码：<br>
+    1. 前台小程序网址（给客户扫码）<br>
+    2. 后台管理网址（自己管理商品用）
+  </div>
+</div>
+
+<script>
+function generateQR() {
+  const url = document.getElementById('url-input').value.trim();
+  if (!url) { alert('请输入网址'); return; }
+  if (!url.startsWith('http://') && !url.startsWith('https://')) { alert('网址需要以 http:// 或 https:// 开头'); return; }
+
+  const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=10&data=' + encodeURIComponent(url);
+  document.getElementById('qr-img').src = qrUrl;
+  document.getElementById('qr-url').textContent = url;
+  document.getElementById('result').classList.add('show');
+  document.getElementById('download-btn').style.display = 'block';
+}
+
+function downloadQR() {
+  const url = document.getElementById('url-input').value.trim();
+  const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=10&data=' + encodeURIComponent(url);
+
+  fetch(qrUrl)
+    .then(r => r.blob())
+    .then(blob => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'elephantlux-qrcode.png';
+      a.click();
+    })
+    .catch(() => {
+      window.open(qrUrl, '_blank');
+    });
+}
+
+document.getElementById('url-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') generateQR();
+});
+</script>
+</body>
+</html>
