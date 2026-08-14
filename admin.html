@@ -42,7 +42,6 @@ table{width:100%;border-collapse:collapse;font-size:13px}
 th{text-align:left;padding:12px 16px;background:#FAFAFA;color:var(--text-3);font-weight:600;white-space:nowrap;border-bottom:1px solid var(--border)}
 td{padding:12px 16px;border-bottom:1px solid var(--border);vertical-align:middle}
 tr:hover td{background:#FAFAFA}
-.product-thumb{width:48px;height:48px;border-radius:8px;object-fit:cover;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:20px}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
 .modal{background:#fff;border-radius:16px;width:90%;max-width:600px;max-height:85vh;overflow-y:auto;padding:28px;position:relative}
 .modal h2{font-size:20px;font-weight:700;margin-bottom:20px}
@@ -79,6 +78,9 @@ tr:hover td{background:#FAFAFA}
 .glb-toggle{display:flex;gap:8px;margin-bottom:10px}
 .glb-toggle button{padding:6px 14px;border:1px solid var(--border);border-radius:6px;font-size:12px;cursor:pointer;background:#fff}
 .glb-toggle button.active{background:var(--primary);color:#1A1A1A;border-color:var(--primary)}
+.form-label button{margin-left:8px;padding:3px 10px;font-size:11px}
+#specs-editor>div,#features-editor>div{animation:fadeIn 0.2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
 <body>
@@ -100,9 +102,9 @@ tr:hover td{background:#FAFAFA}
 </div>
 
 <script>
-const STORAGE_KEY = 'lamp_products';
-const CAT_KEY = 'lamp_categories';
+const DATA_KEY = 'lamp_admin_data';
 const CONTACT_KEY = 'lamp_contact_info';
+const DATA_VERSION = 2;
 
 const defaultCategories = [
   { id: 'all', name: 'All' }, { id: 'chandelier', name: 'Chandelier' },
@@ -111,11 +113,21 @@ const defaultCategories = [
 ];
 
 const defaultProducts = [
-  { id: 'p1', name: 'Crystal Chandelier Aurora', category: 'chandelier', modelType: 'chandelier', gradient: 'linear-gradient(135deg,#F5F5F5,#E0E0E0)', description: 'Luxury crystal chandelier with K9 grade crystals and golden brass frame.', specs: [{label:'Material',value:'K9 Crystal + Brass'},{label:'Size',value:'600mm'},{label:'Light Source',value:'LED G9'},{label:'Wattage',value:'40W'}], features: [{icon:'star',title:'Premium Quality',desc:'Hand-selected K9 crystals'},{icon:'light',title:'Adjustable Lighting',desc:'Dimmable LED included'}], detailDescription: '', galleryImages: [], coverImage: '' },
-  { id: 'p2', name: 'Vintage Brass Table Lamp', category: 'table-lamp', modelType: 'table-lamp', gradient: 'linear-gradient(135deg,#FFF8E1,#FFE082)', description: 'Retro industrial table lamp with solid brass body and warm light.', specs: [{label:'Material',value:'Solid Brass'},{label:'Size',value:'350mm'},{label:'Light Source',value:'E27 LED'},{label:'Wattage',value:'15W'}], features: [{icon:'star',title:'Solid Brass',desc:'Premium material build'},{icon:'light',title:'Warm Light',desc:'2700K warm white'}], detailDescription: '', galleryImages: [], coverImage: '' },
-  { id: 'p3', name: 'Modern Floor Lamp Nordic', category: 'floor-lamp', modelType: 'floor-lamp', gradient: 'linear-gradient(135deg,#E8EAF6,#C5CAE9)', description: 'Minimalist Nordic floor lamp with marble base and fabric shade.', specs: [{label:'Material',value:'Marble + Fabric'},{label:'Height',value:'1600mm'},{label:'Light Source',value:'E27 LED'},{label:'Wattage',value:'25W'}], features: [{icon:'star',title:'Marble Base',desc:'Natural marble, stable and elegant'},{icon:'light',title:'Soft Light',desc:'Fabric shade for diffused glow'}], detailDescription: '', galleryImages: [], coverImage: '' },
-  { id: 'p4', name: 'Crystal Wall Lamp Diamond', category: 'wall-lamp', modelType: 'wall-lamp', gradient: 'linear-gradient(135deg,#FFF3E0,#FFE0B2)', description: 'Modern crystal wall lamp with diamond-cut design and chrome finish.', specs: [{label:'Material',value:'K9 Crystal + Chrome'},{label:'Size',value:'300mm'},{label:'Light Source',value:'LED G9'},{label:'Wattage',value:'20W'}], features: [{icon:'star',title:'Diamond Cut',desc:'Precision-cut crystal facets'},{icon:'light',title:'LED Included',desc:'Energy-efficient lighting'}], detailDescription: '', galleryImages: [], coverImage: '' },
-  { id: 'p5', name: 'LED Ceiling Lamp Galaxy', category: 'ceiling-lamp', modelType: 'ceiling-lamp', gradient: 'linear-gradient(135deg,#E1F5FE,#B3E5FC)', description: 'Modern flush mount ceiling light with remote control and dimmable LED.', specs: [{label:'Material',value:'Aluminum + Acrylic'},{label:'Size',value:'500mm'},{label:'Light Source',value:'Integrated LED'},{label:'Wattage',value:'36W'}], features: [{icon:'star',title:'Remote Control',desc:'Adjustable brightness and color'},{icon:'light',title:'3 Color Modes',desc:'Warm, natural, and cool white'}], detailDescription: '', galleryImages: [], coverImage: '' }
+  { id: 'c1', name: 'Versailles Crystal Chandelier', category: 'chandelier', modelType: 'chandelier', gradient: 'linear-gradient(145deg, #2C1810, #6B4423)', description: 'A luxurious crystal chandelier inspired by the Palace of Versailles, featuring premium K9 crystal bead curtains paired with an antique copper lamp frame. Six-arm candelabra design, light refracts through crystals to create dazzling brilliance, adding French classical elegance to the space.', specs: [{label:'Material',value:'K9 Crystal + Copper Frame'},{label:'Dimensions',value:'Diameter 60cm × Height 48cm'},{label:'Light Source',value:'E14 Bulb × 6'},{label:'Power',value:'6 × 40W (max)'},{label:'Color Temp',value:'2700K Warm Yellow'},{label:'Coverage',value:'15-25㎡'},{label:'Style',value:'French Vintage'}], features: [{icon:'sparkle',title:'K9 Crystal',desc:'High light transmittance crystal, dazzling refraction'},{icon:'craft',title:'Handcrafted Copper',desc:'Traditional copper forging, warm tones'},{icon:'light',title:'Six-Arm Light Source',desc:'Six light positions, even illumination'}], detailDescription: '', galleryImages: [], coverImage: '' },
+  { id: 'c2', name: 'Nordic Minimalist Branch Chandelier', category: 'chandelier', modelType: 'chandelier', gradient: 'linear-gradient(145deg, #2C3E50, #4A6FA5)', description: 'Nordic minimalist style branch chandelier with matte white arms and frosted glass shades. Smooth and simple lines, versatile for any space style, suitable for modern minimalist and Nordic-style living rooms and dining areas.', specs: [{label:'Material',value:'Baked Paint Iron + Frosted Glass'},{label:'Dimensions',value:'Diameter 52cm × Height 35cm'},{label:'Light Source',value:'G9 Beads × 5'},{label:'Power',value:'5 × 5W LED'},{label:'Color Temp',value:'3000K Warm White'},{label:'Coverage',value:'10-20㎡'},{label:'Style',value:'Nordic Minimalist'}], features: [{icon:'sparkle',title:'Frosted Shade',desc:'Soft frosted glass, even and glare-free light'},{icon:'craft',title:'Baked Paint Finish',desc:'Multi-layer baked paint, rust-resistant and durable'},{icon:'light',title:'LED Energy Saving',desc:'G9 LED light source, energy-efficient and durable'}], detailDescription: '', galleryImages: [], coverImage: '' },
+  { id: 'c3', name: 'Vintage Brass Molecular Chandelier', category: 'chandelier', modelType: 'chandelier', gradient: 'linear-gradient(145deg, #3E2723, #795548)', description: 'A vintage brass chandelier inspired by molecular structure, with spherical frosted shades distributed across brass branches, featuring a unique and artistic design. Suitable for loft industrial and vintage-style living rooms and bar areas.', specs: [{label:'Material',value:'Brass + Frosted Glass Sphere'},{label:'Dimensions',value:'Diameter 70cm × Height 40cm'},{label:'Light Source',value:'E27 Bulb × 7'},{label:'Power',value:'7 × 6W LED'},{label:'Color Temp',value:'2700K Warm Yellow'},{label:'Coverage',value:'20-35㎡'},{label:'Style',value:'Industrial Vintage'}], features: [{icon:'sparkle',title:'Molecular Design',desc:'Unique molecular structure design, highly artistic'},{icon:'craft',title:'Solid Brass',desc:'Solid brass branches, premium texture'},{icon:'light',title:'Seven Light Positions',desc:'Seven spherical shades, wide illumination range'}], detailDescription: '', galleryImages: [], coverImage: '' },
+  { id: 't1', name: 'Warm Glow Ambient Table Lamp', category: 'table-lamp', modelType: 'table-lamp', gradient: 'linear-gradient(145deg, #4A2C2A, #8B5E3C)', description: 'Classic cylindrical fabric table lamp with warm white shade paired with a walnut wood base, creating a cozy and soft home atmosphere. Suitable for bedside tables, desks, or living room side tables, an ideal companion for reading and relaxation.', specs: [{label:'Material',value:'Walnut Wood + Linen Shade'},{label:'Dimensions',value:'Diameter 26cm × Height 38cm'},{label:'Light Source',value:'E27 Bulb × 1'},{label:'Power',value:'1 × 8W LED'},{label:'Color Temp',value:'2700K Warm Yellow'},{label:'Coverage',value:'3-8㎡'},{label:'Style',value:'Japanese Minimalist'}], features: [{icon:'sparkle',title:'Linen Shade',desc:'Natural linen fabric, soft and glare-free light'},{icon:'craft',title:'Walnut Base',desc:'North American black walnut, natural grain'},{icon:'light',title:'Touch Switch',desc:'Three-level brightness touch control'}], detailDescription: '', galleryImages: [], coverImage: '' },
+  { id: 't2', name: 'Geometric Creative Table Lamp', category: 'table-lamp', modelType: 'table-lamp', gradient: 'linear-gradient(145deg, #1A237E, #3949AB)', description: 'Creative table lamp with geometric folded line design, metal pole outlines a modern silhouette with folded lines, paired with a cylindrical frosted shade. Minimalist design language, suitable for modern-style desks and study spaces.', specs: [{label:'Material',value:'Matte Metal + Frosted PC Shade'},{label:'Dimensions',value:'Diameter 18cm × Height 42cm'},{label:'Light Source',value:'Built-in LED Module'},{label:'Power',value:'7W'},{label:'Color Temp',value:'3000K-5000K Adjustable'},{label:'Coverage',value:'2-5㎡'},{label:'Style',value:'Modern Minimalist'}], features: [{icon:'sparkle',title:'Stepless Dimming',desc:'Freely adjust brightness and color temperature'},{icon:'craft',title:'Folded Line Design',desc:'Geometric folded line design, strong design appeal'},{icon:'light',title:'USB Powered',desc:'Supports USB interface, easy to connect'}], detailDescription: '', galleryImages: [], coverImage: '' },
+  { id: 't3', name: 'Brass Vintage Table Lamp', category: 'table-lamp', modelType: 'table-lamp', gradient: 'linear-gradient(145deg, #33691E, #558B2F)', description: 'British vintage brass table lamp with classic bell-shaped shade paired with distressed brass pole, exuding a rich scholarly ambiance.', specs: [{label:'Material',value:'Distressed Brass + Fabric Shade'},{label:'Dimensions',value:'Diameter 22cm × Height 36cm'},{label:'Light Source',value:'E14 Bulb × 1'},{label:'Power',value:'1 × 40W (max)'},{label:'Color Temp',value:'2700K Warm Yellow'},{label:'Coverage',value:'2-6㎡'},{label:'Style',value:'British Vintage'}], features: [{icon:'sparkle',title:'Distressed Finish',desc:'Hand-distressed treatment, full of vintage charm'},{icon:'craft',title:'Bell-Shaped Shade',desc:'Classic bell design, excellent spotlight effect'},{icon:'light',title:'Pull Cord Switch',desc:'Vintage pull cord switch, nostalgic experience'}], detailDescription: '', galleryImages: [], coverImage: '' },
+  { id: 'f1', name: 'Nordic Standing Floor Lamp', category: 'floor-lamp', modelType: 'floor-lamp', gradient: 'linear-gradient(145deg, #263238, #4E6E7E)', description: 'Nordic style standing floor lamp with slender pole paired with conical fabric shade, featuring a clean and elegant design.', specs: [{label:'Material',value:'Baked Paint Iron + Linen Shade'},{label:'Dimensions',value:'Diameter 35cm × Height 155cm'},{label:'Light Source',value:'E27 Bulb × 1'},{label:'Power',value:'1 × 12W LED'},{label:'Color Temp',value:'3000K Warm White'},{label:'Coverage',value:'5-10㎡'},{label:'Style',value:'Nordic Minimalist'}], features: [{icon:'sparkle',title:'Conical Shade',desc:'Conical fabric shade design, focused reading light'},{icon:'craft',title:'Weighted Base',desc:'Marble weighted base, stable and tip-resistant'},{icon:'light',title:'Foot Switch',desc:'Convenient foot switch, easy control'}], detailDescription: '', galleryImages: [], coverImage: '' },
+  { id: 'f2', name: 'Arc Reading Floor Lamp', category: 'floor-lamp', modelType: 'floor-lamp', gradient: 'linear-gradient(145deg, #4A148C, #7B1FA2)', description: 'Arc cantilever floor lamp, elegant curved pole extends the light source above the sofa, providing precise reading lighting without taking up floor space.', specs: [{label:'Material',value:'Polished Metal + Marble Base'},{label:'Dimensions',value:'Diameter 40cm × Height 180cm'},{label:'Light Source',value:'E27 Bulb × 1'},{label:'Power',value:'1 × 15W LED'},{label:'Color Temp',value:'3000K Warm White'},{label:'Coverage',value:'8-15㎡'},{label:'Style',value:'Modern Light Luxury'}], features: [{icon:'sparkle',title:'Arc Cantilever',desc:'Elegant curved design, adjustable cantilever'},{icon:'craft',title:'Marble Base',desc:'Natural marble base, solid and grand'},{icon:'light',title:'Precise Lighting',desc:'Light source overhead, reading without blind spots'}], detailDescription: '', galleryImages: [], coverImage: '' },
+  { id: 'f3', name: 'Modern Minimalist Floor Lamp', category: 'floor-lamp', modelType: 'floor-lamp', gradient: 'linear-gradient(145deg, #212121, #424242)', description: 'Minimalist cylindrical floor lamp with integrated column LED light source, 360-degree surround illumination.', specs: [{label:'Material',value:'Matte Aluminum Alloy + PC Diffuser'},{label:'Dimensions',value:'Diameter 15cm × Height 160cm'},{label:'Light Source',value:'Built-in LED Module'},{label:'Power',value:'18W'},{label:'Color Temp',value:'2700K-6500K Adjustable'},{label:'Coverage',value:'8-12㎡'},{label:'Style',value:'Minimalist Modern'}], features: [{icon:'sparkle',title:'360° Illumination',desc:'Column surround lighting, even illumination'},{icon:'craft',title:'Aluminum Housing',desc:'Aerospace aluminum, excellent heat dissipation'},{icon:'light',title:'Smart Dimming',desc:'Supports APP control of brightness and color temperature'}], detailDescription: '', galleryImages: [], coverImage: '' },
+  { id: 'w1', name: 'Minimalist Crystal Wall Lamp', category: 'wall-lamp', modelType: 'wall-lamp', gradient: 'linear-gradient(145deg, #1B5E20, #2E7D32)', description: 'Minimalist square crystal wall lamp, transparent crystal shade refracts diamond-like brilliance, paired with brushed nickel metal backplate.', specs: [{label:'Material',value:'K9 Crystal + Brushed Nickel Backplate'},{label:'Dimensions',value:'Width 12cm × Height 18cm × Projection 8cm'},{label:'Light Source',value:'G9 Beads × 2'},{label:'Power',value:'2 × 5W LED'},{label:'Color Temp',value:'3000K Warm White'},{label:'Coverage',value:'2-5㎡'},{label:'Style',value:'Modern Minimalist'}], features: [{icon:'sparkle',title:'Crystal Refraction',desc:'K9 crystal shade, dazzling light and shadow'},{icon:'craft',title:'Brushed Nickel',desc:'Brushed nickel metal backplate, fingerprint-resistant'},{icon:'light',title:'Dual Light Source',desc:'Dual G9 beads, more even illumination'}], detailDescription: '', galleryImages: [], coverImage: '' },
+  { id: 'w2', name: 'Vintage Copper Wall Lamp', category: 'wall-lamp', modelType: 'wall-lamp', gradient: 'linear-gradient(145deg, #BF360C, #D84315)', description: 'American vintage copper wall lamp with distressed antique copper arm and water ripple glass shade, warm light passes through the glass to create charming light and shadow effects.', specs: [{label:'Material',value:'Distressed Copper + Water Ripple Glass'},{label:'Dimensions',value:'Width 16cm × Height 22cm × Projection 12cm'},{label:'Light Source',value:'E14 Bulb × 1'},{label:'Power',value:'1 × 40W (max)'},{label:'Color Temp',value:'2700K Warm Yellow'},{label:'Coverage',value:'2-6㎡'},{label:'Style',value:'American Vintage'}], features: [{icon:'sparkle',title:'Water Ripple Glass',desc:'Hand-blown water ripple glass, unique light and shadow'},{icon:'craft',title:'Handcrafted Copper',desc:'Hand-forged and distressed, each piece is unique'},{icon:'light',title:'Anti-Glare Design',desc:'Downward-facing shade design, glare-free'}], detailDescription: '', galleryImages: [], coverImage: '' },
+  { id: 'w3', name: 'Modern LED Up-Down Wall Lamp', category: 'wall-lamp', modelType: 'wall-lamp', gradient: 'linear-gradient(145deg, #01579B, #0277BD)', description: 'Modern minimalist LED up-down wall lamp with dual up and down lighting design, creating a symmetrical halo effect on the wall.', specs: [{label:'Material',value:'Brushed Aluminum Alloy + Acrylic'},{label:'Dimensions',value:'Width 25cm × Height 8cm × Projection 4cm'},{label:'Light Source',value:'Built-in LED Module × 2'},{label:'Power',value:'2 × 6W LED'},{label:'Color Temp',value:'3000K Warm White'},{label:'Coverage',value:'3-8㎡'},{label:'Style',value:'Modern Minimalist'}], features: [{icon:'sparkle',title:'Up-Down Lighting',desc:'Dual-direction lighting, symmetrical wall halo'},{icon:'craft',title:'Aluminum Body',desc:'One-piece molded aluminum, excellent heat dissipation'},{icon:'light',title:'IP54 Waterproof',desc:'Suitable for indoor and semi-outdoor use'}], detailDescription: '', galleryImages: [], coverImage: '' },
+  { id: 'ce1', name: 'Minimalist Round Ceiling Lamp', category: 'ceiling-lamp', modelType: 'ceiling-lamp', gradient: 'linear-gradient(145deg, #37474F, #546E7A)', description: 'Ultra-thin minimalist round ceiling lamp, only 2.5cm thick, fits close to the ceiling without feeling oppressive.', specs: [{label:'Material',value:'Aluminum Alloy Frame + Acrylic Cover'},{label:'Dimensions',value:'Diameter 40cm × Thickness 2.5cm'},{label:'Light Source',value:'Built-in LED Module'},{label:'Power',value:'24W'},{label:'Color Temp',value:'3000K-6000K Adjustable'},{label:'Coverage',value:'10-15㎡'},{label:'Style',value:'Minimalist Modern'}], features: [{icon:'sparkle',title:'Ultra-Thin Design',desc:'Only 2.5cm thick, fits close to ceiling'},{icon:'craft',title:'Acrylic Cover',desc:'High transmittance acrylic, even light'},{icon:'light',title:'Tri-Color Switching',desc:'Free switching between warm/natural/white light'}], detailDescription: '', galleryImages: [], coverImage: '' },
+  { id: 'ce2', name: 'Smart Dimmable Ceiling Lamp', category: 'ceiling-lamp', modelType: 'ceiling-lamp', gradient: 'linear-gradient(145deg, #4527A0, #6A1B9A)', description: 'Smart WiFi ceiling lamp, supports mobile APP and voice control. Adjustable brightness and color temperature, with multiple built-in scene modes.', specs: [{label:'Material',value:'Aluminum Alloy + Star Pattern Acrylic'},{label:'Dimensions',value:'Diameter 55cm × Thickness 3.5cm'},{label:'Light Source',value:'Built-in Dual Color Temp LED Module'},{label:'Power',value:'36W'},{label:'Color Temp',value:'2700K-6500K Adjustable'},{label:'Coverage',value:'15-25㎡'},{label:'Style',value:'Smart Modern'}], features: [{icon:'sparkle',title:'Smart Control',desc:'Supports APP/voice/remote three methods'},{icon:'craft',title:'Star Pattern Cover',desc:'Starry texture cover, highly decorative'},{icon:'light',title:'Scene Modes',desc:'Built-in reading/cinema/sleep-aid scenes'}], detailDescription: '', galleryImages: [], coverImage: '' },
+  { id: 'ce3', name: 'Ring LED Ceiling Lamp', category: 'ceiling-lamp', modelType: 'ceiling-lamp', gradient: 'linear-gradient(145deg, #004D40, #00695C)', description: 'Ring-shaped LED ceiling lamp, unique circular design allows light to diffuse evenly from center to surroundings. Flicker-free high CRI LED, restores true object colors.', specs: [{label:'Material',value:'Aluminum Alloy + Frosted Acrylic'},{label:'Dimensions',value:'Outer Diameter 50cm × Inner Diameter 30cm × Thickness 4cm'},{label:'Light Source',value:'Built-in LED Ring Module'},{label:'Power',value:'32W'},{label:'Color Temp',value:'4000K Natural Light'},{label:'Coverage',value:'12-20㎡'},{label:'Style',value:'Modern Minimalist'}], features: [{icon:'sparkle',title:'Ring Illumination',desc:'360° ring light source, no dark zones'},{icon:'craft',title:'High CRI',desc:'Ra≥90, restores true colors'},{icon:'light',title:'Flicker-Free',desc:'DC drive, eye-friendly flicker-free'}], detailDescription: '', galleryImages: [], coverImage: '' }
 ];
 
 let products = JSON.parse(JSON.stringify(defaultProducts));
@@ -123,13 +135,28 @@ let categories = JSON.parse(JSON.stringify(defaultCategories));
 let contactInfo = {};
 
 function loadData() {
-  try { const p = localStorage.getItem(STORAGE_KEY); if (p) products = JSON.parse(p); } catch(e) {}
-  try { const c = localStorage.getItem(CAT_KEY); if (c) categories = JSON.parse(c); } catch(e) {}
+  try {
+    const stored = localStorage.getItem(DATA_KEY);
+    if (stored) {
+      const data = JSON.parse(stored);
+      if (data.version !== DATA_VERSION) {
+        localStorage.removeItem(DATA_KEY);
+        return;
+      }
+      if (data.products) products = data.products;
+      if (data.categories) categories = data.categories;
+    }
+  } catch(e) {}
   try { const ci = localStorage.getItem(CONTACT_KEY); if (ci) contactInfo = JSON.parse(ci); } catch(e) {}
 }
-function saveProducts() { localStorage.setItem(STORAGE_KEY, JSON.stringify(products)); }
-function saveCategories() { localStorage.setItem(CAT_KEY, JSON.stringify(categories)); }
-function saveContactInfo() { localStorage.setItem(CONTACT_KEY, JSON.stringify(contactInfo)); }
+
+function saveData() {
+  localStorage.setItem(DATA_KEY, JSON.stringify({ products, categories, version: DATA_VERSION }));
+}
+
+function saveContactInfo() {
+  localStorage.setItem(CONTACT_KEY, JSON.stringify(contactInfo));
+}
 
 function showToast(msg, isError) {
   const t = document.createElement('div');
@@ -169,10 +196,18 @@ function renderDashboard() {
     <div class="card"><div class="card-header"><h2>3D模型说明</h2></div><div class="card-body">
       <div class="glb-info">
         <strong>如何添加真实3D模型？</strong><br>
-        1. 使用 <a href="https://lumalabs.ai" target="_blank">Luma AI</a> 或 <a href="https://play.google.com/store/apps/details?id=com.kiri.engine" target="_blank">Kiri Engine</a> 从照片生成3D模型<br>
+        1. 使用 <a href="https://lumalabs.ai" target="_blank">Luma AI</a> 或 Kiri Engine APP 从照片生成3D模型<br>
         2. 下载 GLB 格式的3D模型文件<br>
         3. 在商品管理中编辑商品，上传 GLB 文件或填写 GLB 文件URL<br>
         4. 客户在前台即可360°查看真实3D商品
+      </div>
+    </div></div>
+    <div class="card"><div class="card-header"><h2>数据同步说明</h2></div><div class="card-body">
+      <div style="background:#FFF3E0;border:1px solid #FFE0B2;border-radius:8px;padding:12px;font-size:13px;color:#E65100;line-height:1.6">
+        <strong>⚠️ 重要提示：</strong><br>
+        后台和小程序必须在<strong>同一个浏览器</strong>中打开才能同步数据。<br>
+        后台地址：https://zzc-gy123.github.io/elephantlus/admin.html<br>
+        小程序地址：https://zzc-gy123.github.io/elephantlus/
       </div>
     </div></div>
   `;
@@ -226,7 +261,6 @@ function editProduct(id) {
       <div class="form-group"><label class="form-label">背景渐变</label><input class="form-input" id="p-gradient" value="${p.gradient || 'linear-gradient(135deg,#F5F5F5,#E0E0E0)'}" placeholder="linear-gradient(135deg,#F5F5F5,#E0E0E0)"></div>
     </div>
     <div class="form-group"><label class="form-label">商品描述</label><textarea class="form-textarea" id="p-desc" placeholder="简短描述">${p.description || ''}</textarea></div>
-
     <div class="form-group">
       <label class="form-label">3D模型设置</label>
       <div class="glb-toggle">
@@ -264,7 +298,6 @@ function editProduct(id) {
         </div>
       </div>
     </div>
-
     <div class="form-group">
       <label class="form-label">商品封面图片</label>
       <div class="upload-area" onclick="document.getElementById('cover-input').click()">
@@ -272,9 +305,7 @@ function editProduct(id) {
         <input type="file" id="cover-input" accept="image/*" style="display:none" onchange="handleCoverUpload(this)">
       </div>
     </div>
-
     <div class="form-group"><label class="form-label">商品详情介绍</label><textarea class="form-textarea" id="p-detail" placeholder="详细的产品介绍文字，支持多段（用空行分段）" style="min-height:120px">${p.detailDescription || ''}</textarea></div>
-
     <div class="form-group">
       <label class="form-label">相关图片（可多选）</label>
       <div class="upload-area" onclick="document.getElementById('gallery-input').click()">
@@ -285,7 +316,14 @@ function editProduct(id) {
         ${(p.galleryImages||[]).map((src,i) => `<div style="position:relative"><img src="${src}"><button onclick="removeGalleryImage(${i});return false" style="position:absolute;top:-4px;right:-4px;width:18px;height:18px;border-radius:50%;background:var(--danger);color:#fff;border:none;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center">×</button></div>`).join('')}
       </div>
     </div>
-
+    <div class="form-group">
+      <label class="form-label">规格参数 <button type="button" class="btn btn-sm btn-info" onclick="addSpec()">+ 添加规格</button></label>
+      <div id="specs-editor"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">产品特点 <button type="button" class="btn btn-sm btn-info" onclick="addFeature()">+ 添加特点</button></label>
+      <div id="features-editor"></div>
+    </div>
     <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px">
       <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">取消</button>
       <button class="btn btn-primary" onclick="saveProduct('${id || ''}')">保存</button>
@@ -295,6 +333,67 @@ function editProduct(id) {
   document.body.appendChild(overlay);
   window._currentGallery = p.galleryImages ? [...p.galleryImages] : [];
   window._currentGlbData = isGlb ? p.modelType.substring(4) : '';
+  window._currentCover = p.coverImage || '';
+  window._currentSpecs = p.specs ? JSON.parse(JSON.stringify(p.specs)) : [{label:'Material',value:''},{label:'Dimensions',value:''},{label:'Light Source',value:''},{label:'Power',value:''}];
+  window._currentFeatures = p.features ? JSON.parse(JSON.stringify(p.features)) : [];
+  renderSpecsEditor();
+  renderFeaturesEditor();
+}
+
+function renderSpecsEditor() {
+  const container = document.getElementById('specs-editor');
+  if (!container) return;
+  container.innerHTML = window._currentSpecs.map((s, i) =>
+    `<div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">
+      <input class="form-input" style="flex:0 0 120px" placeholder="标签" value="${s.label||''}" oninput="updateSpec(${i},'label',this.value)">
+      <input class="form-input" style="flex:1" placeholder="参数值" value="${s.value||''}" oninput="updateSpec(${i},'value',this.value)">
+      <button type="button" class="btn btn-sm btn-danger" onclick="removeSpec(${i})" style="flex-shrink:0">删除</button>
+    </div>`
+  ).join('');
+}
+function addSpec() {
+  window._currentSpecs.push({label:'',value:''});
+  renderSpecsEditor();
+}
+function updateSpec(index, field, value) {
+  if (window._currentSpecs[index]) window._currentSpecs[index][field] = value;
+}
+function removeSpec(index) {
+  window._currentSpecs.splice(index, 1);
+  renderSpecsEditor();
+}
+
+const featureIcons = [
+  {value:'sparkle',label:'✨ 闪烁'},{value:'craft',label:'🔨 工艺'},{value:'light',label:'💡 灯光'},
+  {value:'star',label:'⭐ 星'},{value:'shield',label:'🛡️ 防护'},{value:'energy',label:'⚡ 节能'},
+  {value:'smart',label:'📱 智能'},{value:'design',label:'🎨 设计'}
+];
+function renderFeaturesEditor() {
+  const container = document.getElementById('features-editor');
+  if (!container) return;
+  container.innerHTML = window._currentFeatures.map((f, i) =>
+    `<div style="border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:10px">
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <select class="form-select" style="flex:0 0 130px" onchange="updateFeature(${i},'icon',this.value)">
+          ${featureIcons.map(fi => `<option value="${fi.value}" ${f.icon===fi.value?'selected':''}>${fi.label}</option>`).join('')}
+        </select>
+        <input class="form-input" style="flex:1" placeholder="特点标题" value="${f.title||''}" oninput="updateFeature(${i},'title',this.value)">
+        <button type="button" class="btn btn-sm btn-danger" onclick="removeFeature(${i})">删除</button>
+      </div>
+      <input class="form-input" placeholder="特点描述" value="${f.desc||''}" oninput="updateFeature(${i},'desc',this.value)">
+    </div>`
+  ).join('');
+}
+function addFeature() {
+  window._currentFeatures.push({icon:'sparkle',title:'',desc:''});
+  renderFeaturesEditor();
+}
+function updateFeature(index, field, value) {
+  if (window._currentFeatures[index]) window._currentFeatures[index][field] = value;
+}
+function removeFeature(index) {
+  window._currentFeatures.splice(index, 1);
+  renderFeaturesEditor();
 }
 
 function switchModelType(type) {
@@ -374,28 +473,29 @@ function saveProduct(id) {
   }
   const coverImage = window._currentCover || '';
   const galleryImages = window._currentGallery || [];
+  const specs = (window._currentSpecs || []).filter(s => s.label.trim() || s.value.trim());
+  const features = (window._currentFeatures || []).filter(f => f.title.trim());
   const existing = id ? products.find(x => x.id === id) : null;
-  const specs = existing?.specs || [{label:'Material',value:''},{label:'Size',value:''},{label:'Light Source',value:''},{label:'Wattage',value:''}];
-  const features = existing?.features || [];
   if (existing) {
     existing.name = name; existing.category = category; existing.gradient = gradient;
     existing.description = description; existing.modelType = modelType;
     existing.coverImage = coverImage || existing.coverImage;
     existing.detailDescription = detailDescription;
     existing.galleryImages = galleryImages.length ? galleryImages : existing.galleryImages;
+    existing.specs = specs; existing.features = features;
   } else {
     products.push({ id: 'p' + Date.now(), name, category, modelType, gradient, description, specs, features, detailDescription, galleryImages, coverImage });
   }
-  saveProducts();
+  saveData();
   document.querySelector('.modal-overlay')?.remove();
-  showToast('保存成功');
+  showToast('保存成功！前台小程序将同步更新');
   renderProducts();
 }
 
 function deleteProduct(id) {
   if (!confirm('确认删除此商品？')) return;
   products = products.filter(p => p.id !== id);
-  saveProducts();
+  saveData();
   showToast('已删除');
   renderProducts();
 }
@@ -439,7 +539,7 @@ function saveCategory(id) {
   } else {
     categories.push({ id: catId, name });
   }
-  saveCategories();
+  saveData();
   document.querySelector('.modal-overlay')?.remove();
   showToast('保存成功');
   renderCategories();
@@ -448,7 +548,7 @@ function deleteCategory(id) {
   if (products.filter(p => p.category === id).length > 0) { showToast('该分类下有商品，无法删除', true); return; }
   if (!confirm('确认删除此分类？')) return;
   categories = categories.filter(c => c.id !== id);
-  saveCategories();
+  saveData();
   showToast('已删除');
   renderCategories();
 }
@@ -489,7 +589,7 @@ function saveContact() {
   contactInfo.facebook = document.getElementById('ci-facebook').value.trim();
   contactInfo.instagram = document.getElementById('ci-instagram').value.trim();
   saveContactInfo();
-  showToast('联系方式已保存');
+  showToast('联系方式已保存！前台小程序将同步更新');
 }
 
 function renderData() {
@@ -529,7 +629,7 @@ function importData(input) {
       if (data.products) products = data.products;
       if (data.categories) categories = data.categories;
       if (data.contactInfo) contactInfo = data.contactInfo;
-      saveProducts(); saveCategories(); saveContactInfo();
+      saveData(); saveContactInfo();
       showToast('数据导入成功');
       renderData();
     } catch(e) { showToast('导入失败：文件格式错误', true); }
@@ -541,7 +641,7 @@ function resetData() {
   products = JSON.parse(JSON.stringify(defaultProducts));
   categories = JSON.parse(JSON.stringify(defaultCategories));
   contactInfo = {};
-  saveProducts(); saveCategories(); saveContactInfo();
+  saveData(); saveContactInfo();
   showToast('已恢复默认数据');
   renderData();
 }
