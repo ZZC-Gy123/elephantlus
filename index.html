@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <title>ELEPHANTLUX · 3D体验</title>
+  <title>ELEPHANTLUX · 3D Experience</title>
   <script type="importmap">
   {
     "imports": {
@@ -64,7 +64,8 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: -apple-sy
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
 /* 商品列表 */
-.app-header { position: sticky; top: 0; z-index: 10; background: var(--glass); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); box-shadow: var(--shadow-xs); border-bottom: 1px solid var(--border-soft); }
+#list-view { display: flex; flex-direction: column; }
+.app-header { flex-shrink: 0; position: sticky; top: 0; z-index: 10; background: var(--glass); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); box-shadow: var(--shadow-xs); border-bottom: 1px solid var(--border-soft); }
 .header-bar { display: flex; align-items: center; gap: 10px; padding: 14px 16px 8px; }
 .header-brand { display: flex; align-items: center; gap: 6px; font-size: 19px; font-weight: 800; white-space: nowrap; letter-spacing: -0.5px; }
 .brand-icon { font-size: 22px; }
@@ -77,7 +78,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: -apple-sy
 .category-nav::-webkit-scrollbar { display: none; }
 .category-item { flex-shrink: 0; padding: 7px 18px; border-radius: 18px; font-size: 13px; font-weight: 500; color: var(--text-2); background: transparent; cursor: pointer; transition: all 0.25s cubic-bezier(0.4,0,0.2,1); }
 .category-item.active { background: var(--primary-grad); color: #fff; font-weight: 600; box-shadow: var(--shadow-gold); }
-.product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 8px 14px; overflow-y: auto; -webkit-overflow-scrolling: touch; height: calc(100% - 120px); padding-bottom: 30px; }
+.product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 8px 14px; overflow-y: auto; -webkit-overflow-scrolling: touch; flex: 1; min-height: 0; padding-bottom: 30px; }
 .product-card { background: var(--card-bg); border-radius: var(--radius); overflow: hidden; cursor: pointer; box-shadow: var(--shadow-sm); transition: transform 0.2s cubic-bezier(0.4,0,0.2,1), box-shadow 0.2s; }
 .product-card:active { transform: scale(0.97); box-shadow: var(--shadow-md); }
 .product-image { width: 100%; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
@@ -88,7 +89,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: -apple-sy
 .product-info { padding: 10px 12px 12px; }
 .product-name { font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-1); }
 .product-category { font-size: 11px; color: var(--text-3); margin-top: 4px; }
-.grid-bottom-tip { text-align: center; padding: 16px 0 24px; font-size: 12px; color: var(--text-3); }
+.grid-bottom-tip { text-align: center; padding: 16px 0 24px; font-size: 12px; color: var(--text-3); flex-shrink: 0; }
 
 /* 详情页 */
 #detail-view { background: var(--bg); }
@@ -204,9 +205,9 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: -apple-sy
           </div>
         </div>
         <p class="scan-title">ELEPHANTLUX</p>
-        <p class="scan-subtitle">3D实景体验 · 沉浸式选灯</p>
-        <button class="scan-enter-btn" id="enter-btn"><span>进入展厅</span></button>
-        <p class="scan-tip">扫码即可进入，无需下载</p>
+        <p class="scan-subtitle">3D Immersive Experience</p>
+        <button class="scan-enter-btn" id="enter-btn"><span>Enter Showroom</span></button>
+        <p class="scan-tip">Scan to enter, no download needed</p>
       </div>
     </div>
 
@@ -216,26 +217,26 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: -apple-sy
           <div class="header-brand"><img src="logo.png" alt="ELEPHANTLUX" class="brand-logo"></div>
           <div class="header-search">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" placeholder="搜索灯具..." id="search-input">
+            <input type="text" placeholder="Search lamps..." id="search-input">
           </div>
         </div>
         <nav class="category-nav" id="category-nav"></nav>
       </header>
       <main class="product-grid" id="product-grid"></main>
-      <div class="grid-bottom-tip"><span>— 已展示全部灯具 —</span></div>
+      <div class="grid-bottom-tip"><span>— All lamps displayed —</span></div>
     </div>
 
     <div id="detail-view" class="view">
       <header class="detail-header">
         <button class="back-btn" id="detail-back"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
-        <span class="detail-header-title">商品详情</span>
+        <span class="detail-header-title">Product Details</span>
         <div class="detail-header-right"></div>
       </header>
       <div class="detail-scroll" id="detail-content"></div>
       <div class="detail-footer">
         <button class="view-3d-btn" id="consult-btn">
           <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 10h.01M12 10h.01M16 10h.01"/></svg>
-          <span>咨询详情</span>
+          <span>Inquire</span>
         </button>
       </div>
     </div>
@@ -243,15 +244,15 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: -apple-sy
     <div id="viewer-overlay" class="overlay">
       <div class="viewer-header">
         <button class="viewer-close" id="viewer-close"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-        <span class="viewer-title" id="viewer-title">3D查看</span>
-        <button class="viewer-rotate-btn" id="viewer-rotate-btn"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7"/><polyline points="21 3 21 9 15 9"/></svg><span>自动旋转</span></button>
+        <span class="viewer-title" id="viewer-title">3D View</span>
+        <button class="viewer-rotate-btn" id="viewer-rotate-btn"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7"/><polyline points="21 3 21 9 15 9"/></svg><span>Auto Rotate</span></button>
       </div>
       <div class="viewer-canvas-wrap" id="viewer-container">
-        <div class="viewer-loading" id="viewer-loading"><div class="loading-ring"></div><p>3D模型加载中...</p></div>
+        <div class="viewer-loading" id="viewer-loading"><div class="loading-ring"></div><p>Loading 3D model...</p></div>
       </div>
       <div class="viewer-footer" id="viewer-footer">
-        <div class="viewer-hint" id="viewer-hint-3d"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0-6 0z"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg><span>单指拖动旋转 · 双指缩放查看细节</span></div>
-        <div class="viewer-hint" id="viewer-hint-360" style="display:none"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12a9 9 0 1 0 9-9"/><polyline points="3 4 3 10 9 10"/></svg><span>左右拖动旋转 · 点击自动旋转按钮360°浏览</span></div>
+        <div class="viewer-hint" id="viewer-hint-3d"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0-6 0z"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg><span>Drag to rotate · Pinch to zoom</span></div>
+        <div class="viewer-hint" id="viewer-hint-360" style="display:none"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12a9 9 0 1 0 9-9"/><polyline points="3 4 3 10 9 10"/></svg><span>Drag to rotate · Tap auto-rotate for 360° view</span></div>
       </div>
     </div>
   </div>
@@ -264,9 +265,9 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 /* ======================== 商品数据 ======================== */
 const _defaultCategories = [
-  { id: 'all', name: '全部' }, { id: 'chandelier', name: '吊灯' },
-  { id: 'table-lamp', name: '台灯' }, { id: 'floor-lamp', name: '落地灯' },
-  { id: 'wall-lamp', name: '壁灯' }, { id: 'ceiling-lamp', name: '吸顶灯' },
+  { id: 'all', name: 'All' }, { id: 'chandelier', name: 'Chandelier' },
+{ id: 'table-lamp', name: 'Table Lamp' }, { id: 'floor-lamp', name: 'Floor Lamp' },
+{ id: 'wall-lamp', name: 'Wall Lamp' }, { id: 'ceiling-lamp', name: 'Ceiling Lamp' },
 ];
 
 const _defaultProducts = [
@@ -593,7 +594,7 @@ function renderProducts() {
   const grid = document.getElementById('product-grid'); if (!grid) return;
   let list = state.currentCategory === 'all' ? [...products] : products.filter(p => p.category === state.currentCategory);
   if (state.searchKeyword) { const kw = state.searchKeyword.toLowerCase(); list = list.filter(p => p.name.toLowerCase().includes(kw) || getCategoryName(p.category).includes(kw)); }
-  if (list.length === 0) { grid.innerHTML = `<div class="empty-state"><svg viewBox="0 0 64 64" width="56" height="56" fill="none" stroke="#CCC" stroke-width="2"><circle cx="28" cy="28" r="18"/><line x1="42" y1="42" x2="54" y2="54" stroke-linecap="round"/></svg><p>未找到匹配的灯具</p></div>`; return; }
+  if (list.length === 0) { grid.innerHTML = `<div class="empty-state"><svg viewBox="0 0 64 64" width="56" height="56" fill="none" stroke="#CCC" stroke-width="2"><circle cx="28" cy="28" r="18"/><line x1="42" y1="42" x2="54" y2="54" stroke-linecap="round"/></svg><p>No matching lamps found</p></div>`; return; }
   grid.innerHTML = list.map(p => `<div class="product-card" data-id="${p.id}"><div class="product-image" style="background:${p.gradient};position:relative;overflow:hidden">${p.coverImage?'<img src="'+p.coverImage+'" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0">':getLampSVG(p.modelType)}</div><div class="product-info"><div class="product-name">${p.name}</div><div class="product-category">${getCategoryName(p.category)}</div></div></div>`).join('');
   grid.querySelectorAll('.product-card').forEach(card => { card.addEventListener('click', () => { const p = products.find(x => x.id === card.dataset.id); if (p) showProductDetail(p); }); });
 }
@@ -601,13 +602,13 @@ function renderProducts() {
 function showProductDetail(product) {
   state.currentProduct = product;
   const content = document.getElementById('detail-content');
-  const descHtml = product.detailDescription ? `<div class="detail-description"><div class="detail-section-title">商品详情</div><div class="detail-desc-content">${formatDetailText(product.detailDescription)}</div></div>` : '';
-  const galleryHtml = (product.galleryImages && product.galleryImages.length) ? `<div class="detail-gallery"><div class="detail-section-title">相关图片</div><div class="gallery-grid">${product.galleryImages.map((src,i) => `<div class="gallery-item" onclick="openGalleryViewer(${i})"><img src="${src}" alt=""></div>`).join('')}</div></div>` : '';
+  const descHtml = product.detailDescription ? `<div class="detail-description"><div class="detail-section-title">Product Details</div><div class="detail-desc-content">${formatDetailText(product.detailDescription)}</div></div>` : '';
+const galleryHtml = (product.galleryImages && product.galleryImages.length) ? `<div class="detail-gallery"><div class="detail-section-title">Gallery</div><div class="gallery-grid">${product.galleryImages.map((src,i) => `<div class="gallery-item" onclick="openGalleryViewer(${i})"><img src="${src}" alt=""></div>`).join('')}</div></div>` : '';
   content.innerHTML = `
-    <div class="detail-image" style="background:${product.gradient}">${getLampSVG(product.modelType)}<div class="detail-3d-badge" id="detail-3d-badge">${product.images360&&product.images360.length?'<svg viewBox=\"0 0 24 24\" width=\"12\" height=\"12\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M3 12a9 9 0 1 0 9-9\"/><polyline points=\"3 4 3 10 9 10\"/></svg>360°查看':'<svg viewBox=\"0 0 24 24\" width=\"12\" height=\"12\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M12 2 L2 7 L12 12 L22 7 Z\"/><path d=\"M2 17 L12 22 L22 17\"/><path d=\"M2 12 L12 17 L22 12\"/></svg>支持3D查看'}</div></div>
+    <div class="detail-image" style="background:${product.gradient}">${getLampSVG(product.modelType)}<div class="detail-3d-badge" id="detail-3d-badge">${product.images360&&product.images360.length?'<svg viewBox=\"0 0 24 24\" width=\"12\" height=\"12\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M3 12a9 9 0 1 0 9-9\"/><polyline points=\"3 4 3 10 9 10\"/></svg>360° View':'<svg viewBox=\"0 0 24 24\" width=\"12\" height=\"12\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M12 2 L2 7 L12 12 L22 7 Z\"/><path d=\"M2 17 L12 22 L22 17\"/><path d=\"M2 12 L12 17 L22 12\"/></svg>3D View'}</div></div>
     <div class="detail-info"><h1 class="detail-name">${product.name}</h1><span class="detail-tag">${getCategoryName(product.category)}</span><p class="detail-desc">${product.description}</p></div>
-    <div class="detail-specs"><div class="detail-section-title">规格参数</div>${product.specs.map(s => `<div class="spec-row"><span class="spec-label">${s.label}</span><span class="spec-value">${s.value}</span></div>`).join('')}</div>
-    <div class="detail-features"><div class="detail-section-title">产品特点</div>${product.features.map(f => `<div class="feature-item"><div class="feature-icon">${getFeatureIcon(f.icon)}</div><div class="feature-text"><h4>${f.title}</h4><p>${f.desc}</p></div></div>`).join('')}</div>
+    <div class="detail-specs"><div class="detail-section-title">Specifications</div>${product.specs.map(s => `<div class="spec-row"><span class="spec-label">${s.label}</span><span class="spec-value">${s.value}</span></div>`).join('')}</div>
+    <div class="detail-features"><div class="detail-section-title">Features</div>${product.features.map(f => `<div class="feature-item"><div class="feature-icon">${getFeatureIcon(f.icon)}</div><div class="feature-text"><h4>${f.title}</h4><p>${f.desc}</p></div></div>`).join('')}</div>
     ${descHtml}
     ${galleryHtml}`;
   showView('detail-view'); content.scrollTop = 0;
@@ -682,7 +683,7 @@ class Viewer360 {
     this.progressEl = document.createElement('div'); this.progressEl.className = 'viewer-360-progress';
     this.progressEl.style.width = (100 / this.images.length) + '%';
     this.hintEl = document.createElement('div'); this.hintEl.className = 'viewer-360-hint';
-    this.hintEl.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12a9 9 0 1 0 9-9"/><polyline points="3 4 3 10 9 10"/></svg><span>左右拖动旋转查看</span>';
+    this.hintEl.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12a9 9 0 1 0 9-9"/><polyline points="3 4 3 10 9 10"/></svg><span>Drag to rotate</span>';
     this.el.appendChild(this.imgEl); this.el.appendChild(this.progressEl); this.el.appendChild(this.hintEl);
     this.container.appendChild(this.el);
     // 绑定交互
@@ -791,7 +792,7 @@ async function openViewer() {
   const loading = document.getElementById('viewer-loading');
   const rotateBtn = document.getElementById('viewer-rotate-btn');
   overlay.classList.add('active'); titleEl.textContent = state.currentProduct.name;
-  if (loading) { loading.style.display = ''; loading.style.opacity = '1'; loading.innerHTML = '<div class="loading-ring"></div><p>加载中...</p>'; }
+  if (loading) { loading.style.display = ''; loading.style.opacity = '1'; loading.innerHTML = '<div class="loading-ring"></div><p>Loading...</p>'; }
   if (rotateBtn) rotateBtn.classList.remove('active');
   await new Promise(r => setTimeout(r, 300));
   try {
@@ -805,15 +806,15 @@ async function openViewer() {
       document.getElementById('viewer-hint-360').style.display = '';
     } else {
       // 否则使用3D模型查看器
-      if (loading) { loading.innerHTML = '<div class="loading-ring"></div><p>3D模型加载中...</p>'; }
+      if (loading) { loading.innerHTML = '<div class="loading-ring"></div><p>Loading 3D model...</p>'; }
       state.viewer = new Viewer3D(container, state.currentProduct.modelType);
       state.viewer.init();
       document.getElementById('viewer-hint-3d').style.display = '';
       document.getElementById('viewer-hint-360').style.display = 'none';
     }
   } catch (err) {
-    console.error('查看器加载失败:', err);
-    if (loading) { loading.innerHTML = '<div style="font-size:13px;color:#999;text-align:center;padding:20px;"><p style="margin-bottom:8px;">加载失败</p><p style="font-size:12px;">请检查网络连接后重试</p></div>'; }
+    console.error('Viewer load failed:', err);
+    if (loading) { loading.innerHTML = '<div style="font-size:13px;color:#999;text-align:center;padding:20px;"><p style="margin-bottom:8px;">Load failed</p><p style="font-size:12px;">Please check network and retry</p></div>'; }
   }
 }
 
@@ -826,7 +827,7 @@ function toggleAutoRotate() {
   if (!state.viewer) return;
   const isOn = state.viewer.toggleAutoRotate();
   const btn = document.getElementById('viewer-rotate-btn');
-  if (btn) { btn.classList.toggle('active', isOn); const span = btn.querySelector('span'); if (span) span.textContent = isOn ? '停止旋转' : '自动旋转'; }
+  if (btn) { btn.classList.toggle('active', isOn); const span = btn.querySelector('span'); if (span) span.textContent = isOn ? 'Stop' : 'Auto Rotate'; }
 }
 
 function showConsultInfo() {
