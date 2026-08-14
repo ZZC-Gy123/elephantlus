@@ -14,7 +14,7 @@
   }
   </script>
   <style>
-/* ======================== 基础重置 ======================== */
+/* ======================== Base Reset ======================== */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 :root {
   --primary: #C9A227; --primary-light: #E8C84E; --primary-dark: #A8861B;
@@ -38,7 +38,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: -apple-sy
 .view.active { opacity: 1; visibility: visible; transform: translateX(0); }
 #scan-view.active { transform: translateX(0); }
 
-/* 扫码页 */
+/* Scan Page */
 #scan-view { background: linear-gradient(145deg, #08080F 0%, #14142B 40%, #1B1B3A 70%, #0F0F22 100%); display: flex; align-items: center; justify-content: center; }
 .scan-bg { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 25% 15%, rgba(201,162,39,0.10) 0%, transparent 45%), radial-gradient(circle at 75% 85%, rgba(100,80,200,0.08) 0%, transparent 45%), radial-gradient(circle at 50% 50%, rgba(201,162,39,0.04) 0%, transparent 70%); pointer-events: none; }
 .scan-bg::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px); background-size: 28px 28px; opacity: 0.5; }
@@ -63,7 +63,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: -apple-sy
 @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-/* 商品列表 */
+/* Product List */
 .app-header { position: sticky; top: 0; z-index: 10; background: var(--glass); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); box-shadow: var(--shadow-xs); border-bottom: 1px solid var(--border-soft); }
 .header-bar { display: flex; align-items: center; gap: 10px; padding: 14px 16px 8px; }
 .header-brand { display: flex; align-items: center; gap: 6px; font-size: 19px; font-weight: 800; white-space: nowrap; letter-spacing: -0.5px; }
@@ -90,7 +90,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: -apple-sy
 .product-category { font-size: 11px; color: var(--text-3); margin-top: 4px; }
 .grid-bottom-tip { text-align: center; padding: 16px 0 24px; font-size: 12px; color: var(--text-3); }
 
-/* 详情页 */
+/* Detail Page */
 #detail-view { background: var(--bg); }
 .detail-header { position: absolute; top: 0; left: 0; right: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--glass); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); box-shadow: var(--shadow-xs); border-bottom: 1px solid var(--border-soft); }
 .back-btn { background: none; border: none; padding: 4px; cursor: pointer; color: var(--text-1); display: flex; align-items: center; }
@@ -121,7 +121,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: -apple-sy
 .view-3d-btn { width: 100%; padding: 15px; border: none; border-radius: var(--radius); background: var(--primary-grad); color: #1A1A1A; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: var(--shadow-gold); transition: transform 0.2s, box-shadow 0.2s; }
 .view-3d-btn:active { transform: scale(0.98); box-shadow: 0 4px 12px rgba(201,162,39,0.2); }
 
-/* 商品详情介绍 */
+/* Product Description */
 .detail-description { background: var(--card-bg); margin: 10px 14px; border-radius: var(--radius-lg); padding: 22px; box-shadow: var(--shadow-sm); }
 .detail-desc-content { font-size: 14px; line-height: 1.85; color: var(--text-2); }
 .detail-desc-content p { margin-bottom: 12px; }
@@ -129,14 +129,14 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: -apple-sy
 .detail-desc-content img { width: 100%; border-radius: var(--radius); margin: 12px 0; }
 .detail-desc-content strong { color: var(--text-1); font-weight: 700; }
 
-/* 相关图片 */
+/* Gallery */
 .detail-gallery { background: var(--card-bg); margin: 10px 14px; border-radius: var(--radius-lg); padding: 22px; box-shadow: var(--shadow-sm); }
 .gallery-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; }
 .gallery-item { width: 100%; aspect-ratio: 1; border-radius: var(--radius); overflow: hidden; cursor: pointer; background: var(--bg); }
 .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
 .gallery-item:active img { transform: scale(1.08); }
 
-/* 图片大图查看器 */
+/* Image Gallery Viewer */
 .gallery-viewer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 200; background: rgba(0,0,0,0.92); display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: opacity 0.3s; }
 .gallery-viewer.active { opacity: 1; visibility: visible; }
 .gallery-viewer img { max-width: 95%; max-height: 85%; border-radius: 8px; }
@@ -146,7 +146,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: -apple-sy
 .gallery-viewer-nav.prev { left: 12px; }
 .gallery-viewer-nav.next { right: 12px; }
 
-/* 3D查看器 */
+/* 3D Viewer */
 .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; background: linear-gradient(180deg, #F8F8FC 0%, #E8E8EE 100%); opacity: 0; visibility: hidden; transition: opacity 0.3s ease; display: flex; flex-direction: column; }
 .overlay.active { opacity: 1; visibility: visible; }
 .viewer-header { display: flex; align-items: center; justify-content: space-between; padding: calc(14px + env(safe-area-inset-top, 0px)) 16px calc(14px + var(--safe-bottom)); background: var(--glass); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); box-shadow: var(--shadow-xs); border-bottom: 1px solid var(--border-soft); z-index: 5; }
@@ -259,8 +259,10 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: -apple-sy
 <script type="module">
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
-/* ======================== 商品数据 ======================== */
+/* ======================== Product Data ======================== */
 const _defaultCategories = [
   { id: 'all', name: 'All' }, { id: 'chandelier', name: 'Chandelier' },
   { id: 'table-lamp', name: 'Table Lamp' }, { id: 'floor-lamp', name: 'Floor Lamp' },
@@ -325,7 +327,7 @@ function getFeatureIcon(name) {
   return icons[name] || '';
 }
 
-/* ======================== 3D模型 ======================== */
+/* ======================== 3D Models ======================== */
 function cylinderBetween(p1, p2, rTop, rBottom, material) {
   const dir = new THREE.Vector3().subVectors(p2, p1);
   const len = dir.length();
@@ -451,7 +453,7 @@ function createLampModel(type) {
   centerModel(model); return model;
 }
 
-/* ======================== 3D查看器 ======================== */
+/* ======================== 3D Viewer ======================== */
 class Viewer3D {
   constructor(container, modelType) {
     this.container = container; this.modelType = modelType;
@@ -478,7 +480,13 @@ class Viewer3D {
       this.controls = new OrbitControls(this.camera, this.renderer.domElement);
       this.controls.enableDamping = true; this.controls.dampingFactor = 0.06;
       this.controls.minDistance = 1.2; this.controls.maxDistance = 6; this.controls.autoRotateSpeed = 2.5;
-      this.controls.enablePan = false; this.controls.target.set(0, 0, 0); this.controls.update();
+      this.controls.enablePan = false;
+      this.controls.minPolarAngle = 0;
+      this.controls.maxPolarAngle = Math.PI;
+      this.controls.minDistance = 0.8;
+      this.controls.maxDistance = 8;
+      this.controls.rotateSpeed = 0.8;
+      this.controls.target.set(0, 0, 0); this.controls.update();
       this._loadModel();
       window.addEventListener('resize', this._onResize);
       this._entryAnimation(); this._animate();
@@ -493,10 +501,40 @@ class Viewer3D {
     this.scene.add(key);
     const fill = new THREE.DirectionalLight(0xE8E8FF, 0.35); fill.position.set(-4, 2, -3); this.scene.add(fill);
     this.scene.add(new THREE.HemisphereLight(0xFFFFFF, 0xE0E0E0, 0.35));
+    const pmrem = new THREE.PMREMGenerator(this.renderer);
+    this.scene.environment = pmrem.fromScene(new THREE.RoomEnvironment(), 0.04).texture;
     const warm = new THREE.DirectionalLight(0xFFE5B4, 0.2); warm.position.set(2, -1, 3); this.scene.add(warm);
   }
   _setupGround() { const g = new THREE.Mesh(new THREE.PlaneGeometry(8, 8), new THREE.ShadowMaterial({ opacity: 0.12 })); g.rotation.x = -Math.PI/2; g.position.y = -0.7; g.receiveShadow = true; this.scene.add(g); }
   _loadModel() {
+    if (this.modelType && this.modelType.startsWith('glb:')) {
+      const glbData = this.modelType.substring(4);
+      const loader = new GLTFLoader();
+      try {
+        loader.load(glbData, (gltf) => {
+          this.model = gltf.scene;
+          // Auto-scale model to fit view
+          const box = new THREE.Box3().setFromObject(this.model);
+          const size = box.getSize(new THREE.Vector3());
+          const maxDim = Math.max(size.x, size.y, size.z);
+          const scale = 1.5 / maxDim;
+          this.model.scale.setScalar(scale);
+          centerModel(this.model);
+          this.scene.add(this.model);
+          if (this._disposed) return;
+        }, undefined, (error) => {
+          console.error('GLB load error:', error);
+          // Fallback to procedural model
+          this._loadProceduralModel();
+        });
+        return;
+      } catch(e) {
+        console.error('GLB error:', e);
+      }
+    }
+    this._loadProceduralModel();
+  }
+  _loadProceduralModel() {
     this.model = createLampModel(this.modelType); this.scene.add(this.model);
     const box = new THREE.Box3().setFromObject(this.model); const size = box.getSize(new THREE.Vector3());
     const maxDim = Math.max(size.x, size.y, size.z);
@@ -525,7 +563,7 @@ class Viewer3D {
   }
 }
 
-/* ======================== 应用逻辑 ======================== */
+/* ======================== App Logic ======================== */
 const state = { currentView: 'scan', currentCategory: 'all', currentProduct: null, viewer: null, searchKeyword: '' };
 
 function showView(viewId) {
@@ -551,7 +589,7 @@ function renderProducts() {
   let list = state.currentCategory === 'all' ? [...products] : products.filter(p => p.category === state.currentCategory);
   if (state.searchKeyword) { const kw = state.searchKeyword.toLowerCase(); list = list.filter(p => p.name.toLowerCase().includes(kw) || getCategoryName(p.category).includes(kw)); }
   if (list.length === 0) { grid.innerHTML = `<div class="empty-state"><svg viewBox="0 0 64 64" width="56" height="56" fill="none" stroke="#CCC" stroke-width="2"><circle cx="28" cy="28" r="18"/><line x1="42" y1="42" x2="54" y2="54" stroke-linecap="round"/></svg><p>No matching lights found</p></div>`; return; }
-  grid.innerHTML = list.map(p => `<div class="product-card" data-id="${p.id}"><div class="product-image" style="background:${p.gradient}">${p.coverImage?`<img src="${p.coverImage}" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;z-index:0">`:getLampSVG(p.modelType)}</div><div class="product-info"><div class="product-name">${p.name}</div><div class="product-category">${getCategoryName(p.category)}</div></div></div>`).join('');
+  grid.innerHTML = list.map(p => `<div class="product-card" data-id="${p.id}"><div class="product-image" style="background:${p.gradient};position:relative;overflow:hidden">${p.coverImage?'<img src="'+p.coverImage+'" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0">':getLampSVG(p.modelType)}</div><div class="product-info"><div class="product-name">${p.name}</div><div class="product-category">${getCategoryName(p.category)}</div></div></div>`).join('');
   grid.querySelectorAll('.product-card').forEach(card => { card.addEventListener('click', () => { const p = products.find(x => x.id === card.dataset.id); if (p) showProductDetail(p); }); });
 }
 
@@ -561,7 +599,7 @@ function showProductDetail(product) {
   const descHtml = product.detailDescription ? `<div class="detail-description"><div class="detail-section-title">Product Description</div><div class="detail-desc-content">${formatDetailText(product.detailDescription)}</div></div>` : '';
   const galleryHtml = (product.galleryImages && product.galleryImages.length) ? `<div class="detail-gallery"><div class="detail-section-title">Gallery</div><div class="gallery-grid">${product.galleryImages.map((src,i) => `<div class="gallery-item" onclick="openGalleryViewer(${i})"><img src="${src}" alt=""></div>`).join('')}</div></div>` : '';
   content.innerHTML = `
-    <div class="detail-image" style="background:${product.gradient}">${product.coverImage?`<img src="${product.coverImage}" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;z-index:0">`:getLampSVG(product.modelType)}<div class="detail-3d-badge" id="detail-3d-badge">${product.images360&&product.images360.length?'<svg viewBox=\"0 0 24 24\" width=\"12\" height=\"12\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M3 12a9 9 0 1 0 9-9\"/><polyline points=\"3 4 3 10 9 10\"/></svg>360° View':'<svg viewBox=\"0 0 24 24\" width=\"12\" height=\"12\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M12 2 L2 7 L12 12 L22 7 Z\"/><path d=\"M2 17 L12 22 L22 17\"/><path d=\"M2 12 L12 17 L22 12\"/></svg>3D View'}</div></div>
+    <div class="detail-image" style="background:${product.gradient};position:relative;overflow:hidden">${product.coverImage?'<img src="'+product.coverImage+'" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0">':getLampSVG(product.modelType)}<div class="detail-3d-badge" id="detail-3d-badge">${product.images360&&product.images360.length?'<svg viewBox=\"0 0 24 24\" width=\"12\" height=\"12\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M3 12a9 9 0 1 0 9-9\"/><polyline points=\"3 4 3 10 9 10\"/></svg>360° View':'<svg viewBox=\"0 0 24 24\" width=\"12\" height=\"12\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M12 2 L2 7 L12 12 L22 7 Z\"/><path d=\"M2 17 L12 22 L22 17\"/><path d=\"M2 12 L12 17 L22 12\"/></svg>3D View'}</div></div>
     <div class="detail-info"><h1 class="detail-name">${product.name}</h1><span class="detail-tag">${getCategoryName(product.category)}</span><p class="detail-desc">${product.description}</p></div>
     <div class="detail-specs"><div class="detail-section-title">Specifications</div>${product.specs.map(s => `<div class="spec-row"><span class="spec-label">${s.label}</span><span class="spec-value">${s.value}</span></div>`).join('')}</div>
     <div class="detail-features"><div class="detail-section-title">Features</div>${product.features.map(f => `<div class="feature-item"><div class="feature-icon">${getFeatureIcon(f.icon)}</div><div class="feature-text"><h4>${f.title}</h4><p>${f.desc}</p></div></div>`).join('')}</div>
@@ -575,7 +613,7 @@ function formatDetailText(text) {
   return text.split(/\n\n+/).map(para => `<p>${para.replace(/\n/g, '<br>')}</p>`).join('');
 }
 
-// ======================== 图片大图查看器 ========================
+// ======================== Image Gallery Viewer ========================
 let galleryViewerState = { images: [], index: 0 };
 
 function openGalleryViewer(index) {
@@ -613,12 +651,12 @@ function closeGalleryViewer() {
   if (viewer) viewer.classList.remove('active');
 }
 
-// 暴露到全局作用域，供 onclick 调用
+// Expose to global scope for onclick calls
 window.openGalleryViewer = openGalleryViewer;
 window.galleryNav = galleryNav;
 window.closeGalleryViewer = closeGalleryViewer;
 
-// ======================== 360度图片查看器 ========================
+// ======================== 360 Degree Image Viewer ========================
 class Viewer360 {
   constructor(container, images) {
     this.container = container; this.images = images;
@@ -632,7 +670,7 @@ class Viewer360 {
   }
   init() {
     this.container.innerHTML = '';
-    // 预加载所有图片
+    // Preload all images
     this.preloaded = this.images.map(src => { const img = new Image(); img.src = src; return img; });
     this.el = document.createElement('div'); this.el.className = 'viewer-360';
     this.imgEl = document.createElement('img'); this.imgEl.src = this.images[0]; this.imgEl.alt = '';
@@ -642,7 +680,7 @@ class Viewer360 {
     this.hintEl.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12a9 9 0 1 0 9-9"/><polyline points="3 4 3 10 9 10"/></svg><span>Drag to rotate</span>';
     this.el.appendChild(this.imgEl); this.el.appendChild(this.progressEl); this.el.appendChild(this.hintEl);
     this.container.appendChild(this.el);
-    // 绑定交互
+    // Bind interactions
     this._onDown = (e) => this._onPointerDown(e);
     this._onMove = (e) => this._onPointerMove(e);
     this._onUp = () => this._onPointerUp();
@@ -652,10 +690,10 @@ class Viewer360 {
     document.addEventListener('touchmove', this._onMove, { passive: false });
     document.addEventListener('mouseup', this._onUp);
     document.addEventListener('touchend', this._onUp);
-    // 隐藏loading
+    // Hide loading
     const loading = document.getElementById('viewer-loading');
     if (loading) { loading.style.display = 'none'; }
-    // 自动预览旋转2.5秒
+    // Auto preview rotation for 2.5 seconds
     this._startAutoPreview();
   }
   _startAutoPreview() {
@@ -754,14 +792,14 @@ async function openViewer() {
   try {
     const container = document.getElementById('viewer-container');
     if (state.viewer) { state.viewer.dispose(); state.viewer = null; }
-    // 如果有360度图片，使用360查看器
+    // If 360 images exist, use 360 viewer
     if (state.currentProduct.images360 && state.currentProduct.images360.length > 0) {
       state.viewer = new Viewer360(container, state.currentProduct.images360);
       state.viewer.init();
       document.getElementById('viewer-hint-3d').style.display = 'none';
       document.getElementById('viewer-hint-360').style.display = '';
     } else {
-      // 否则使用3D模型查看器
+      // Otherwise use 3D model viewer
       if (loading) { loading.innerHTML = '<div class="loading-ring"></div><p>Loading 3D Model...</p>'; }
       state.viewer = new Viewer3D(container, state.currentProduct.modelType);
       state.viewer.init();
@@ -787,97 +825,31 @@ function toggleAutoRotate() {
 }
 
 function showConsultInfo() {
-  // Remove any existing overlay first
-  const existing = document.getElementById('consult-overlay');
-  if (existing) existing.remove();
-
-  // Read contact info from localStorage
+  const old = document.getElementById('consult-overlay');
+  if (old) old.remove();
   let info = {};
-  try {
-    const raw = localStorage.getItem('lamp_contact_info');
-    if (raw) info = JSON.parse(raw);
-  } catch (e) { info = {}; }
-
-  const hasAny = info.qrcode || info.phone || info.wechat || info.qq || info.email || info.address || info.facebook || info.instagram;
-
-  // Build contact rows
-  const rows = [];
-  if (info.qrcode) {
-    rows.push(`
-      <div style="text-align:center;padding:8px 0 16px;">
-        <img src="${info.qrcode}" alt="WeChat QR Code" style="width:170px;height:170px;border-radius:14px;border:1px solid var(--border);object-fit:cover;box-shadow:var(--shadow-sm);">
-        <p style="margin-top:12px;font-size:12px;color:var(--text-3);letter-spacing:0.3px;">Scan to add us on WeChat</p>
-      </div>`);
-  }
-  const rowItem = (label, value, href, iconSvg) => {
-    const tag = href ? 'a' : 'div';
-    const linkAttr = href ? ` href="${href}" ` : ' ';
-    return `<${tag}${linkAttr}style="display:flex;align-items:center;gap:14px;text-decoration:none;color:inherit;padding:14px 0;border-bottom:1px solid var(--border-soft);">
-      <div style="flex-shrink:0;width:40px;height:40px;border-radius:12px;background:rgba(201,162,39,0.1);display:flex;align-items:center;justify-content:center;color:var(--primary);">${iconSvg}</div>
-      <div style="flex:1;min-width:0;">
-        <div style="font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px;">${label}</div>
-        <div style="font-size:15px;font-weight:600;margin-top:3px;color:var(--text-1);word-break:break-all;">${value}</div>
-      </div>
-    </${tag}>`;
-  };
-  if (info.phone) rows.push(rowItem('Phone', info.phone, `tel:${info.phone}`, '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>'));
-  if (info.wechat) rows.push(rowItem('WeChat', info.wechat, '', '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>'));
-  if (info.qq) rows.push(rowItem('QQ', info.qq, '', '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>'));
-  if (info.email) rows.push(rowItem('Email', info.email, `mailto:${info.email}`, '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>'));
-  if (info.address) rows.push(rowItem('Address', info.address, '', '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'));
-
-  // Social buttons
-  const socials = [];
-  if (info.facebook) socials.push(`<a href="${info.facebook}" target="_blank" rel="noopener" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:13px;border-radius:14px;background:#1877F2;color:#fff;font-size:14px;font-weight:600;text-decoration:none;box-shadow:0 4px 14px rgba(24,119,242,0.3);transition:transform 0.2s;">
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.79-4.69 4.53-4.69 1.31 0 2.68.24 2.68.24v2.97h-1.51c-1.49 0-1.96.93-1.96 1.89v2.25h3.33l-.53 3.49h-2.8V24C19.61 23.1 24 18.1 24 12.07z"/></svg>
-    Facebook</a>`);
-  if (info.instagram) socials.push(`<a href="${info.instagram}" target="_blank" rel="noopener" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:13px;border-radius:14px;background:linear-gradient(135deg,#F58529,#DD2A7B,#8134AF,#515BD4);color:#fff;font-size:14px;font-weight:600;text-decoration:none;box-shadow:0 4px 14px rgba(221,42,123,0.3);transition:transform 0.2s;">
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41a3.72 3.72 0 0 1-1.38-.9 3.72 3.72 0 0 1-.9-1.38c-.16-.42-.36-1.06-.41-2.23C2.17 15.58 2.16 15.2 2.16 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.17 8.8 2.16 12 2.16zm0 1.8c-3.14 0-3.51.01-4.75.07-1.15.05-1.77.24-2.18.4-.55.21-.94.47-1.35.88-.41.41-.67.8-.88 1.35-.16.41-.35 1.03-.4 2.18-.06 1.24-.07 1.61-.07 4.75s.01 3.51.07 4.75c.05 1.15.24 1.77.4 2.18.21.55.47.94.88 1.35.41.41.8.67 1.35.88.41.16 1.03.35 2.18.4 1.24.06 1.61.07 4.75.07s3.51-.01 4.75-.07c1.15-.05 1.77-.24 2.18-.4.55-.21.94-.47 1.35-.88.41-.41.67-.8.88-1.35.16-.41.35-1.03.4-2.18.06-1.24.07-1.61.07-4.75s-.01-3.51-.07-4.75c-.05-1.15-.24-1.77-.4-2.18a3.64 3.64 0 0 0-.88-1.35 3.64 3.64 0 0 0-1.35-.88c-.41-.16-1.03-.35-2.18-.4-1.24-.06-1.61-.07-4.75-.07zm0 3.06a5.82 5.82 0 1 1 0 11.64 5.82 5.82 0 0 1 0-11.64zm0 9.6a3.78 3.78 0 1 0 0-7.56 3.78 3.78 0 0 0 0 7.56zm7.4-9.84a1.36 1.36 0 1 1-2.72 0 1.36 1.36 0 0 1 2.72 0z"/></svg>
-    Instagram</a>`);
-
-  const bodyHtml = hasAny
-    ? `${rows.join('')}${socials.length ? `<div style="display:flex;gap:10px;margin-top:18px;">${socials.join('')}</div>` : ''}`
-    : `<div style="text-align:center;padding:36px 16px;color:var(--text-3);">
-        <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.4;margin:0 auto 14px;display:block;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        <p style="font-size:14px;line-height:1.7;">Contact information is being set up.<br>Please check back later.</p>
-      </div>`;
-
-  // Build the overlay
+  try { info = JSON.parse(localStorage.getItem('lamp_contact_info') || '{}'); } catch(e) {}
   const overlay = document.createElement('div');
   overlay.id = 'consult-overlay';
-  overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:300;background:rgba(0,0,0,0.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;transition:opacity 0.3s ease;';
-
-  overlay.innerHTML = `
-    <div class="consult-popup" style="position:relative;width:100%;max-width:380px;max-height:85vh;overflow-y:auto;background:var(--card-bg);border-radius:24px;box-shadow:0 24px 60px rgba(0,0,0,0.25);transform:translateY(20px) scale(0.96);transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);">
-      <div style="background:linear-gradient(135deg,#C9A227 0%,#E8C84E 100%);padding:28px 24px 24px;border-radius:24px 24px 0 0;text-align:center;position:relative;">
-        <h2 style="font-size:22px;font-weight:800;color:#1A1A1A;letter-spacing:0.5px;">Contact Us</h2>
-        <p style="margin-top:6px;font-size:13px;color:rgba(26,26,26,0.7);">Get more product information and quotes</p>
-      </div>
-      <button class="consult-close" style="position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;border:none;background:rgba(255,255,255,0.85);color:#1A1A1A;font-size:20px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-xs);z-index:2;">&times;</button>
-      <div style="padding:8px 22px 24px;">${bodyHtml}</div>
-    </div>`;
-
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:200;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);';
+  const items = [];
+  if (info.qrcode) items.push('<div style="text-align:center;margin-bottom:16px;"><img src="'+info.qrcode+'" style="width:140px;height:140px;border-radius:12px;object-fit:cover;border:2px solid rgba(212,175,55,0.3);"/><p style="font-size:12px;color:#999;margin-top:8px;">Scan to add us on WeChat</p></div>');
+  if (info.phone) items.push('<a href="tel:'+info.phone+'" style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(245,245,245,0.8);border-radius:10px;text-decoration:none;color:#333;margin-bottom:8px;"><span style="font-size:20px;">📞</span><div><div style="font-size:12px;color:#999;">Phone</div><div style="font-size:15px;font-weight:600;">'+info.phone+'</div></div></a>');
+  if (info.wechat) items.push('<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(245,245,245,0.8);border-radius:10px;margin-bottom:8px;"><span style="font-size:20px;">💬</span><div><div style="font-size:12px;color:#999;">WeChat</div><div style="font-size:15px;font-weight:600;">'+info.wechat+'</div></div></div>');
+  if (info.qq) items.push('<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(245,245,245,0.8);border-radius:10px;margin-bottom:8px;"><span style="font-size:20px;">🐧</span><div><div style="font-size:12px;color:#999;">QQ</div><div style="font-size:15px;font-weight:600;">'+info.qq+'</div></div></div>');
+  if (info.email) items.push('<a href="mailto:'+info.email+'" style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(245,245,245,0.8);border-radius:10px;text-decoration:none;color:#333;margin-bottom:8px;"><span style="font-size:20px;">📧</span><div><div style="font-size:12px;color:#999;">Email</div><div style="font-size:15px;font-weight:600;">'+info.email+'</div></div></a>');
+  if (info.address) items.push('<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(245,245,245,0.8);border-radius:10px;margin-bottom:8px;"><span style="font-size:20px;">📍</span><div><div style="font-size:12px;color:#999;">Address</div><div style="font-size:14px;font-weight:600;">'+info.address+'</div></div></div>');
+  const socials = [];
+  if (info.facebook) socials.push('<a href="'+info.facebook+'" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:10px 20px;background:#1877F2;color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;">📘 Facebook</a>');
+  if (info.instagram) socials.push('<a href="'+info.instagram+'" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:10px 20px;background:linear-gradient(45deg,#F09433,#E6683C,#DC2743,#CC2366,#BC1888);color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;">📷 Instagram</a>');
+  if (socials.length) items.push('<div style="display:flex;gap:10px;justify-content:center;margin-top:12px;">'+socials.join('')+'</div>');
+  const content = items.length ? items.join('') : '<p style="text-align:center;color:#999;padding:20px 0;font-size:14px;">Contact information is being set up. Please check back later.</p>';
+  overlay.innerHTML = '<div style="background:#fff;border-radius:20px;padding:24px;max-width:340px;width:90%;max-height:85vh;overflow-y:auto;position:relative;box-shadow:0 20px 60px rgba(0,0,0,0.3);" onclick="event.stopPropagation()"><div style="position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:#999;" onclick="document.getElementById(\'consult-overlay\').remove()">×</div><div style="text-align:center;margin-bottom:20px;"><div style="font-size:22px;font-weight:700;background:linear-gradient(135deg,#D4AF37,#F0D060);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Contact Us</div><div style="font-size:13px;color:#999;margin-top:4px;">Get more product information and quotes</div></div>'+content+'</div>';
+  overlay.addEventListener('click', () => overlay.remove());
   document.body.appendChild(overlay);
-
-  // Close handlers
-  const closeConsult = () => {
-    overlay.style.opacity = '0';
-    const popup = overlay.querySelector('.consult-popup');
-    if (popup) popup.style.transform = 'translateY(20px) scale(0.96)';
-    setTimeout(() => overlay.remove(), 300);
-  };
-  overlay.querySelector('.consult-close').addEventListener('click', closeConsult);
-  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeConsult(); });
-
-  // Animate in
-  requestAnimationFrame(() => {
-    overlay.style.opacity = '1';
-    const popup = overlay.querySelector('.consult-popup');
-    if (popup) popup.style.transform = 'translateY(0) scale(1)';
-  });
 }
 
-// 事件绑定
+// Event bindings
 document.getElementById('enter-btn')?.addEventListener('click', enterApp);
 document.getElementById('detail-back')?.addEventListener('click', () => showView('list-view'));
 document.getElementById('view-3d-btn')?.addEventListener('click', openViewer);

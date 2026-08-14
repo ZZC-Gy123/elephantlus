@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>灯具展厅 · 后台管理</title>
+<title>ELEPHANTLUX · Admin Panel</title>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{--primary:#D4AF37;--primary-light:#F0D060;--primary-dark:#B8960B;--sidebar-bg:#1E1E2E;--sidebar-hover:#2A2A3E;--content-bg:#F0F0F5;--card-bg:#FFF;--text-1:#1A1A1A;--text-2:#555;--text-3:#999;--border:#E5E5E5;--danger:#E53935;--success:#43A047;--info:#1E88E5;--radius:10px}
@@ -19,7 +19,6 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;font-s
 .main{flex:1;margin-left:220px;padding:24px;min-height:100vh}
 .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
 .topbar h1{font-size:22px;font-weight:700}
-.topbar-actions{display:flex;gap:10px}
 .btn{padding:8px 18px;border:none;border-radius:var(--radius);font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all 0.2s;text-decoration:none}
 .btn-primary{background:var(--primary);color:#1A1A1A}
 .btn-primary:hover{background:var(--primary-dark);color:#fff}
@@ -43,590 +42,523 @@ table{width:100%;border-collapse:collapse;font-size:13px}
 th{text-align:left;padding:12px 16px;background:#FAFAFA;color:var(--text-3);font-weight:600;white-space:nowrap;border-bottom:1px solid var(--border)}
 td{padding:12px 16px;border-bottom:1px solid var(--border);vertical-align:middle}
 tr:hover td{background:#FAFAFA}
+.product-thumb{width:48px;height:48px;border-radius:8px;object-fit:cover;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:20px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal{background:#fff;border-radius:16px;width:90%;max-width:600px;max-height:85vh;overflow-y:auto;padding:28px;position:relative}
+.modal h2{font-size:20px;font-weight:700;margin-bottom:20px}
+.modal-close{position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:#999;border:none}
 .form-group{margin-bottom:16px}
 .form-label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--text-2)}
-.form-input,.form-select,.form-textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;transition:border-color 0.2s}
+.form-input,.form-select,.form-textarea{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;transition:border 0.2s}
 .form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;border-color:var(--primary)}
 .form-textarea{resize:vertical;min-height:80px}
-.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(4px)}
-.modal-overlay.active{display:flex}
-.modal{background:#fff;border-radius:16px;width:90%;max-width:560px;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
-.modal-header{padding:20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1}
-.modal-header h2{font-size:18px;font-weight:700}
-.modal-close{background:none;border:none;font-size:24px;color:var(--text-3);cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%}
-.modal-close:hover{background:#FAFAFA}
-.modal-body{padding:20px}
-.modal-footer{padding:16px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;position:sticky;bottom:0;background:#fff}
-.toast{position:fixed;top:20px;right:20px;padding:14px 24px;border-radius:10px;color:#fff;font-size:14px;font-weight:600;z-index:300;opacity:0;transform:translateX(400px);transition:all 0.3s}
-.toast.show{opacity:1;transform:translateX(0)}
-.toast.success{background:var(--success)}
-.toast.error{background:var(--danger)}
+.form-row{display:flex;gap:12px}
+.form-row .form-group{flex:1}
+.upload-area{border:2px dashed var(--border);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:all 0.2s}
+.upload-area:hover{border-color:var(--primary);background:rgba(212,175,55,0.03)}
+.upload-area img{max-width:100%;max-height:120px;border-radius:8px;margin-top:8px}
+.upload-preview{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.upload-preview img{width:60px;height:60px;border-radius:8px;object-fit:cover}
+.tag{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600}
+.tag-glb{background:#E3F2FD;color:#1565C0}
+.tag-procedural{background:#FFF3E0;color:#E65100}
+.search-bar{display:flex;gap:10px;margin-bottom:16px;align-items:center;flex-wrap:wrap}
+.search-bar input{flex:1;min-width:200px;padding:8px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px}
+.search-bar select{padding:8px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff}
+.contact-item{display:flex;align-items:center;gap:12px;padding:14px;border:1px solid var(--border);border-radius:10px;margin-bottom:10px}
+.contact-icon{font-size:22px;width:40px;text-align:center}
+.contact-input{flex:1}
+.contact-input label{font-size:12px;color:var(--text-3);display:block;margin-bottom:2px}
+.contact-input input{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px}
 .empty{text-align:center;padding:40px;color:var(--text-3)}
-.img-thumb{position:relative;width:60px;height:60px;border-radius:8px;overflow:hidden;border:1px solid var(--border)}
-.img-thumb img{width:100%;height:100%;object-fit:cover}
-.img-del{position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.6);color:#fff;border:none;width:18px;height:18px;border-radius:50%;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.upload-area{border:2px dashed var(--border);border-radius:10px;padding:24px;text-align:center;cursor:pointer;transition:border-color 0.2s}
-.upload-area:hover{border-color:var(--primary)}
-.cover-preview{width:120px;height:80px;border-radius:8px;overflow:hidden;border:1px solid var(--border);background:var(--content-bg)}
-.cover-preview img{width:100%;height:100%;object-fit:cover}
-.tag{display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600}
-.tag-chandelier{background:#FFF3E0;color:#E65100}
-.tag-table-lamp{background:#E3F2FD;color:#1565C0}
-.tag-floor-lamp{background:#E8F5E9;color:#2E7D32}
-.tag-wall-lamp{background:#F3E5F5;color:#7B1FA2}
-.tag-ceiling-lamp{background:#FFEBEE;color:#C62828}
-.filter-bar{display:flex;gap:10px;margin-bottom:20px;align-items:center;flex-wrap:wrap}
-.filter-bar select,.filter-bar input{padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px}
+.toast{position:fixed;top:24px;right:24px;background:var(--success);color:#fff;padding:12px 24px;border-radius:8px;font-size:14px;z-index:300;animation:slideIn 0.3s ease}
+.toast.error{background:var(--danger)}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+.glb-info{background:#E3F2FD;border:1px solid #BBDEFB;border-radius:8px;padding:12px;margin-top:8px;font-size:12px;color:#1565C0;line-height:1.6}
+.glb-info strong{color:#0D47A1}
+.glb-toggle{display:flex;gap:8px;margin-bottom:10px}
+.glb-toggle button{padding:6px 14px;border:1px solid var(--border);border-radius:6px;font-size:12px;cursor:pointer;background:#fff}
+.glb-toggle button.active{background:var(--primary);color:#1A1A1A;border-color:var(--primary)}
 </style>
 </head>
 <body>
 <div class="sidebar">
-  <div class="sidebar-logo"><span>💡</span> ELEPHANTLUX</div>
+  <div class="sidebar-logo"><span>🐘</span> ELEPHANTLUX</div>
   <nav class="sidebar-nav">
-    <div class="nav-item active" data-page="dashboard">
-      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-      <span>仪表盘</span>
-    </div>
-    <div class="nav-item" data-page="products">
-      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7L12 3 4 7l8 4 8-4z"/><path d="M4 7v10l8 4 8-4V7"/><path d="M12 11v10"/></svg>
-      <span>商品管理</span>
-    </div>
-    <div class="nav-item" data-page="categories">
-      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-      <span>分类管理</span>
-    </div>
-    <div class="nav-item" data-page="contact">
-      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-      <span>联系方式</span>
-    </div>
-    <div class="nav-item" data-page="data">
-      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
-      <span>数据管理</span>
-    </div>
+    <div class="nav-item active" data-page="dashboard">📊 仪表盘</div>
+    <div class="nav-item" data-page="products">🛍️ 商品管理</div>
+    <div class="nav-item" data-page="categories">🏷️ 分类管理</div>
+    <div class="nav-item" data-page="contact">📞 联系方式</div>
+    <div class="nav-item" data-page="data">💾 数据管理</div>
   </nav>
   <div class="sidebar-footer">
-    <a href="index.html" target="_blank" class="btn btn-outline btn-sm" style="width:100%;justify-content:center">预览小程序</a>
+    <a href="index.html" style="color:var(--primary);text-decoration:none;font-weight:600;font-size:13px;">👁️ 预览小程序</a>
   </div>
 </div>
-
 <div class="main">
-  <!-- 仪表盘 -->
-  <div id="page-dashboard" class="page">
-    <div class="topbar"><h1>仪表盘</h1></div>
-    <div class="stats-grid" id="stats-grid"></div>
-  </div>
-
-  <!-- 商品管理 -->
-  <div id="page-products" class="page" style="display:none">
-    <div class="topbar"><h1>商品管理</h1>
-      <div class="topbar-actions"><button class="btn btn-primary" onclick="openProductModal()">+ 添加商品</button></div>
-    </div>
-    <div class="filter-bar">
-      <select id="filter-category" onchange="renderProducts()"><option value="">全部分类</option></select>
-      <input type="text" id="search-product" placeholder="搜索商品名称..." oninput="renderProducts()">
-    </div>
-    <div class="card"><div class="table-wrap"><table>
-      <thead><tr><th>商品封面</th><th>名称</th><th>分类</th><th>操作</th></tr></thead>
-      <tbody id="product-tbody"></tbody>
-    </table></div></div>
-  </div>
-
-  <!-- 分类管理 -->
-  <div id="page-categories" class="page" style="display:none">
-    <div class="topbar"><h1>分类管理</h1>
-      <div class="topbar-actions"><button class="btn btn-primary" onclick="openCategoryModal()">+ 添加分类</button></div>
-    </div>
-    <div class="card"><div class="table-wrap"><table>
-      <thead><tr><th>ID</th><th>名称</th><th>商品数</th><th>操作</th></tr></thead>
-      <tbody id="category-tbody"></tbody>
-    </table></div></div>
-  </div>
-
-  <!-- 联系方式管理 -->
-  <div id="page-contact" class="page" style="display:none">
-    <div class="topbar"><h1>联系方式管理</h1>
-      <div class="topbar-actions"><button class="btn btn-primary" onclick="saveContactInfo()">保存设置</button></div>
-    </div>
-    <div class="card">
-      <div class="card-header"><h2>联系方式信息</h2></div>
-      <div class="card-body">
-        <p style="font-size:13px;color:var(--text-3);margin-bottom:20px;line-height:1.6">设置客户点击"Contact Us"时显示的联系方式。留空的项将不会在小程序中显示。</p>
-        <div class="form-group"><label class="form-label">客服电话</label><input type="text" class="form-input" id="contact-phone" placeholder="如：400-xxx-xxxx"></div>
-        <div class="form-group"><label class="form-label">微信号</label><input type="text" class="form-input" id="contact-wechat" placeholder="如：elephantlux_kefu"></div>
-        <div class="form-group"><label class="form-label">QQ号</label><input type="text" class="form-input" id="contact-qq" placeholder="如：123456789"></div>
-        <div class="form-group"><label class="form-label">邮箱</label><input type="text" class="form-input" id="contact-email" placeholder="如：service@elephantlux.com"></div>
-        <div class="form-group"><label class="form-label">公司地址</label><input type="text" class="form-input" id="contact-address" placeholder="如：广东省深圳市XX区XX路XX号"></div>
-        <div class="form-group"><label class="form-label">Facebook 主页链接</label><input type="text" class="form-input" id="contact-facebook" placeholder="如：https://facebook.com/elephantlux"></div>
-        <div class="form-group"><label class="form-label">Instagram 主页链接</label><input type="text" class="form-input" id="contact-instagram" placeholder="如：https://instagram.com/elephantlux"></div>
-        <div class="form-group"><label class="form-label">客服二维码图片</label>
-          <p style="font-size:12px;color:var(--text-3);margin-bottom:8px">上传客服微信二维码图片，客户可扫码添加客服</p>
-          <div class="upload-area" onclick="document.getElementById('contact-qrcode-input').click()">
-            <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="var(--text-3)" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            <p style="font-size:13px;color:var(--text-3);margin-top:8px">点击上传二维码图片</p>
-            <input type="file" id="contact-qrcode-input" accept="image/*" style="display:none" onchange="handleQRCodeUpload(event)">
-          </div>
-          <div id="qrcode-preview" style="margin-top:12px"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 数据管理 -->
-  <div id="page-data" class="page" style="display:none">
-    <div class="topbar"><h1>数据管理</h1></div>
-    <div class="card">
-      <div class="card-header"><h2>数据备份与恢复</h2></div>
-      <div class="card-body">
-        <p style="font-size:13px;color:var(--text-3);margin-bottom:20px;line-height:1.6">定期导出数据备份，防止浏览器缓存清理导致数据丢失。</p>
-        <div style="display:flex;gap:12px;flex-wrap:wrap">
-          <button class="btn btn-success" onclick="exportData()">导出数据 (JSON)</button>
-          <button class="btn btn-info" onclick="document.getElementById('import-file').click()">导入数据</button>
-          <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
-          <button class="btn btn-danger" onclick="resetData()">恢复默认数据</button>
-        </div>
-      </div>
-    </div>
-  </div>
+  <div id="page-content"></div>
 </div>
-
-<!-- 商品弹窗 -->
-<div class="modal-overlay" id="product-modal">
-  <div class="modal">
-    <div class="modal-header"><h2 id="product-modal-title">添加商品</h2><button class="modal-close" onclick="closeProductModal()">&times;</button></div>
-    <div class="modal-body">
-      <input type="hidden" id="product-id">
-      <div class="form-group"><label class="form-label">商品名称</label><input type="text" class="form-input" id="product-name" placeholder="请输入商品名称"></div>
-      <div class="form-group"><label class="form-label">分类</label><select class="form-select" id="product-category"></select></div>
-      <div class="form-group"><label class="form-label">3D模型类型</label>
-        <select class="form-select" id="product-modelType">
-          <option value="chandelier">吊灯</option><option value="table-lamp">台灯</option>
-          <option value="floor-lamp">落地灯</option><option value="wall-lamp">壁灯</option><option value="ceiling-lamp">吸顶灯</option>
-        </select>
-      </div>
-      <div class="form-group"><label class="form-label">背景渐变色</label><input type="text" class="form-input" id="product-gradient" placeholder="如：linear-gradient(145deg, #2C1810, #6B4423)"></div>
-      <div class="form-group"><label class="form-label">商品封面图片</label>
-        <p style="font-size:12px;color:var(--text-3);margin-bottom:8px">上传商品封面图片，将显示在商品列表和详情页</p>
-        <div class="upload-area" onclick="document.getElementById('product-cover-input').click()">
-          <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="var(--text-3)" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-          <p style="font-size:13px;color:var(--text-3);margin-top:8px">点击上传封面图片</p>
-          <input type="file" id="product-cover-input" accept="image/*" style="display:none" onchange="handleCoverUpload(event)">
-        </div>
-        <div id="cover-preview" style="margin-top:12px"></div>
-      </div>
-      <div class="form-group"><label class="form-label">商品描述</label><textarea class="form-textarea" id="product-description" placeholder="请输入商品描述"></textarea></div>
-      <div class="form-group"><label class="form-label">规格参数（每行一个，格式：标签|值）</label><textarea class="form-textarea" id="product-specs" placeholder="材质|K9水晶&#10;尺寸|直径60cm×高48cm"></textarea></div>
-      <div class="form-group"><label class="form-label">产品特点（每行一个，格式：图标|标题|描述）</label><textarea class="form-textarea" id="product-features" placeholder="sparkle|K9水晶|高透光率水晶&#10;craft|手工铜艺|传统铜艺锻造"></textarea></div>
-      <div class="form-group"><label class="form-label">商品详情介绍</label><textarea class="form-textarea" id="product-detailDesc" placeholder="可多段落描述商品详情，空行分段"></textarea></div>
-      <div class="form-group"><label class="form-label">相关图片</label>
-        <p style="font-size:12px;color:var(--text-3);margin-bottom:8px">上传商品相关图片，客户可在详情页查看</p>
-        <div class="upload-area" onclick="document.getElementById('product-gallery-input').click()">
-          <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="var(--text-3)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-          <p style="font-size:13px;color:var(--text-3);margin-top:8px">点击上传图片（可多选）</p>
-          <input type="file" id="product-gallery-input" accept="image/*" multiple style="display:none" onchange="handleGalleryUpload(event)">
-        </div>
-        <div id="gallery-preview" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"></div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeProductModal()">取消</button>
-      <button class="btn btn-primary" onclick="saveProduct()">保存</button>
-    </div>
-  </div>
-</div>
-
-<!-- 分类弹窗 -->
-<div class="modal-overlay" id="category-modal">
-  <div class="modal" style="max-width:400px">
-    <div class="modal-header"><h2 id="category-modal-title">添加分类</h2><button class="modal-close" onclick="closeCategoryModal()">&times;</button></div>
-    <div class="modal-body">
-      <input type="hidden" id="category-id">
-      <div class="form-group"><label class="form-label">分类ID（英文）</label><input type="text" class="form-input" id="category-new-id" placeholder="如：outdoor-lamp" disabled></div>
-      <div class="form-group"><label class="form-label">分类名称</label><input type="text" class="form-input" id="category-name" placeholder="如：户外灯"></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeCategoryModal()">取消</button>
-      <button class="btn btn-primary" onclick="saveCategory()">保存</button>
-    </div>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
 
 <script>
-// ======================== 默认数据 ========================
-const _defaultCategories = [
+const STORAGE_KEY = 'lamp_products';
+const CAT_KEY = 'lamp_categories';
+const CONTACT_KEY = 'lamp_contact_info';
+
+const defaultCategories = [
   { id: 'all', name: 'All' }, { id: 'chandelier', name: 'Chandelier' },
   { id: 'table-lamp', name: 'Table Lamp' }, { id: 'floor-lamp', name: 'Floor Lamp' },
-  { id: 'wall-lamp', name: 'Wall Lamp' }, { id: 'ceiling-lamp', name: 'Ceiling Lamp' },
-];
-const _defaultProducts = [
-  { id: 'c1', name: 'Versailles Crystal Chandelier', category: 'chandelier', modelType: 'chandelier', gradient: 'linear-gradient(145deg, #2C1810, #6B4423)', coverImage: '', description: 'A luxurious crystal chandelier inspired by the Palace of Versailles.', specs: [{label:'Material',value:'K9 Crystal + Copper Frame'},{label:'Dimensions',value:'Diameter 60cm × Height 48cm'}], features: [{icon:'sparkle',title:'K9 Crystal',desc:'High transmittance crystal'}] },
+  { id: 'wall-lamp', name: 'Wall Lamp' }, { id: 'ceiling-lamp', name: 'Ceiling Lamp' }
 ];
 
-// ======================== 数据管理 ========================
-function getCategories() {
-  try { return JSON.parse(localStorage.getItem('lamp_categories') || 'null') || _defaultCategories; }
-  catch(e) { return _defaultCategories; }
-}
-function getProducts() {
-  try { return JSON.parse(localStorage.getItem('lamp_products') || 'null') || _defaultProducts; }
-  catch(e) { return _defaultProducts; }
-}
-function saveCategories(cats) { localStorage.setItem('lamp_categories', JSON.stringify(cats)); }
-function saveProducts(prods) { localStorage.setItem('lamp_products', JSON.stringify(prods)); }
+const defaultProducts = [
+  { id: 'p1', name: 'Crystal Chandelier Aurora', category: 'chandelier', modelType: 'chandelier', gradient: 'linear-gradient(135deg,#F5F5F5,#E0E0E0)', description: 'Luxury crystal chandelier with K9 grade crystals and golden brass frame.', specs: [{label:'Material',value:'K9 Crystal + Brass'},{label:'Size',value:'600mm'},{label:'Light Source',value:'LED G9'},{label:'Wattage',value:'40W'}], features: [{icon:'star',title:'Premium Quality',desc:'Hand-selected K9 crystals'},{icon:'light',title:'Adjustable Lighting',desc:'Dimmable LED included'}], detailDescription: '', galleryImages: [], coverImage: '' },
+  { id: 'p2', name: 'Vintage Brass Table Lamp', category: 'table-lamp', modelType: 'table-lamp', gradient: 'linear-gradient(135deg,#FFF8E1,#FFE082)', description: 'Retro industrial table lamp with solid brass body and warm light.', specs: [{label:'Material',value:'Solid Brass'},{label:'Size',value:'350mm'},{label:'Light Source',value:'E27 LED'},{label:'Wattage',value:'15W'}], features: [{icon:'star',title:'Solid Brass',desc:'Premium material build'},{icon:'light',title:'Warm Light',desc:'2700K warm white'}], detailDescription: '', galleryImages: [], coverImage: '' },
+  { id: 'p3', name: 'Modern Floor Lamp Nordic', category: 'floor-lamp', modelType: 'floor-lamp', gradient: 'linear-gradient(135deg,#E8EAF6,#C5CAE9)', description: 'Minimalist Nordic floor lamp with marble base and fabric shade.', specs: [{label:'Material',value:'Marble + Fabric'},{label:'Height',value:'1600mm'},{label:'Light Source',value:'E27 LED'},{label:'Wattage',value:'25W'}], features: [{icon:'star',title:'Marble Base',desc:'Natural marble, stable and elegant'},{icon:'light',title:'Soft Light',desc:'Fabric shade for diffused glow'}], detailDescription: '', galleryImages: [], coverImage: '' },
+  { id: 'p4', name: 'Crystal Wall Lamp Diamond', category: 'wall-lamp', modelType: 'wall-lamp', gradient: 'linear-gradient(135deg,#FFF3E0,#FFE0B2)', description: 'Modern crystal wall lamp with diamond-cut design and chrome finish.', specs: [{label:'Material',value:'K9 Crystal + Chrome'},{label:'Size',value:'300mm'},{label:'Light Source',value:'LED G9'},{label:'Wattage',value:'20W'}], features: [{icon:'star',title:'Diamond Cut',desc:'Precision-cut crystal facets'},{icon:'light',title:'LED Included',desc:'Energy-efficient lighting'}], detailDescription: '', galleryImages: [], coverImage: '' },
+  { id: 'p5', name: 'LED Ceiling Lamp Galaxy', category: 'ceiling-lamp', modelType: 'ceiling-lamp', gradient: 'linear-gradient(135deg,#E1F5FE,#B3E5FC)', description: 'Modern flush mount ceiling light with remote control and dimmable LED.', specs: [{label:'Material',value:'Aluminum + Acrylic'},{label:'Size',value:'500mm'},{label:'Light Source',value:'Integrated LED'},{label:'Wattage',value:'36W'}], features: [{icon:'star',title:'Remote Control',desc:'Adjustable brightness and color'},{icon:'light',title:'3 Color Modes',desc:'Warm, natural, and cool white'}], detailDescription: '', galleryImages: [], coverImage: '' }
+];
 
-// ======================== 页面切换 ========================
-document.querySelectorAll('.nav-item').forEach(item => {
-  item.addEventListener('click', () => {
-    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-    item.classList.add('active');
-    const page = item.dataset.page;
-    document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-    document.getElementById('page-' + page).style.display = 'block';
-    if (page === 'dashboard') renderDashboard();
-    if (page === 'products') renderProducts();
-    if (page === 'categories') renderCategories();
-    if (page === 'contact') loadContactInfo();
-  });
-});
+let products = JSON.parse(JSON.stringify(defaultProducts));
+let categories = JSON.parse(JSON.stringify(defaultCategories));
+let contactInfo = {};
 
-// ======================== 仪表盘 ========================
-function renderDashboard() {
-  const prods = getProducts(), cats = getCategories();
-  const grid = document.getElementById('stats-grid');
-  const modelTypes = [...new Set(prods.map(p => p.modelType))];
-  grid.innerHTML = `
-    <div class="stat-card"><div class="stat-icon" style="background:#FFF3E0">📦</div><div class="stat-info"><h3>${prods.length}</h3><p>商品总数</p></div></div>
-    <div class="stat-card"><div class="stat-icon" style="background:#E3F2FD">🏷️</div><div class="stat-info"><h3>${cats.length}</h3><p>分类数量</p></div></div>
-    <div class="stat-card"><div class="stat-icon" style="background:#E8F5E9">🧊</div><div class="stat-info"><h3>${modelTypes.length}</h3><p>3D模型类型</p></div></div>
-    <div class="stat-card"><div class="stat-icon" style="background:#F3E5F5">🖼️</div><div class="stat-info"><h3>${prods.filter(p => p.coverImage).length}</h3><p>已设置封面</p></div></div>`;
+function loadData() {
+  try { const p = localStorage.getItem(STORAGE_KEY); if (p) products = JSON.parse(p); } catch(e) {}
+  try { const c = localStorage.getItem(CAT_KEY); if (c) categories = JSON.parse(c); } catch(e) {}
+  try { const ci = localStorage.getItem(CONTACT_KEY); if (ci) contactInfo = JSON.parse(ci); } catch(e) {}
+}
+function saveProducts() { localStorage.setItem(STORAGE_KEY, JSON.stringify(products)); }
+function saveCategories() { localStorage.setItem(CAT_KEY, JSON.stringify(categories)); }
+function saveContactInfo() { localStorage.setItem(CONTACT_KEY, JSON.stringify(contactInfo)); }
+
+function showToast(msg, isError) {
+  const t = document.createElement('div');
+  t.className = 'toast' + (isError ? ' error' : '');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity 0.3s'; setTimeout(() => t.remove(), 300); }, 2500);
 }
 
-// ======================== 商品管理 ========================
-function renderProducts() {
-  const prods = getProducts(), cats = getCategories();
-  const filterCat = document.getElementById('filter-category')?.value || '';
-  const search = document.getElementById('search-product')?.value.toLowerCase() || '';
-  // 更新筛选器
-  const filterSel = document.getElementById('filter-category');
-  if (filterSel.options.length <= 1) {
-    cats.forEach(c => { if (c.id !== 'all') filterSel.add(new Option(c.name, c.id)); });
-  }
-  let filtered = prods;
-  if (filterCat) filtered = filtered.filter(p => p.category === filterCat);
-  if (search) filtered = filtered.filter(p => p.name.toLowerCase().includes(search));
-  const tbody = document.getElementById('product-tbody');
-  if (filtered.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="empty">暂无商品</td></tr>'; return; }
-  tbody.innerHTML = filtered.map(p => {
-    const cat = cats.find(c => c.id === p.category);
-    const coverHtml = p.coverImage
-      ? `<div class="img-thumb"><img src="${p.coverImage}" alt=""></div>`
-      : `<div class="cover-preview" style="background:${p.gradient}"></div>`;
-    return `<tr>
-      <td>${coverHtml}</td>
-      <td style="font-weight:600">${p.name}</td>
-      <td><span class="tag tag-${p.category}">${cat ? cat.name : p.category}</span></td>
-      <td><button class="btn btn-info btn-sm" onclick="openProductModal('${p.id}')">编辑</button> <button class="btn btn-danger btn-sm" onclick="deleteProduct('${p.id}')">删除</button></td>
-    </tr>`;
-  }).join('');
-}
-
-let editingGalleryImages = [];
-let editingCoverImage = null;
-
-function openProductModal(id) {
-  const cats = getCategories();
-  const catSel = document.getElementById('product-category');
-  catSel.innerHTML = cats.filter(c => c.id !== 'all').map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-  if (id) {
-    const p = getProducts().find(x => x.id === id);
-    if (!p) return;
-    document.getElementById('product-modal-title').textContent = '编辑商品';
-    document.getElementById('product-id').value = p.id;
-    document.getElementById('product-name').value = p.name;
-    document.getElementById('product-category').value = p.category;
-    document.getElementById('product-modelType').value = p.modelType;
-    document.getElementById('product-gradient').value = p.gradient || '';
-    document.getElementById('product-description').value = p.description || '';
-    document.getElementById('product-specs').value = (p.specs || []).map(s => `${s.label}|${s.value}`).join('\n');
-    document.getElementById('product-features').value = (p.features || []).map(f => `${f.icon}|${f.title}|${f.desc}`).join('\n');
-    document.getElementById('product-detailDesc').value = p.detailDescription || '';
-    editingCoverImage = p.coverImage || null;
-    editingGalleryImages = p.galleryImages || [];
-  } else {
-    document.getElementById('product-modal-title').textContent = '添加商品';
-    document.getElementById('product-id').value = '';
-    document.getElementById('product-name').value = '';
-    document.getElementById('product-gradient').value = '';
-    document.getElementById('product-description').value = '';
-    document.getElementById('product-specs').value = '';
-    document.getElementById('product-features').value = '';
-    document.getElementById('product-detailDesc').value = '';
-    editingCoverImage = null;
-    editingGalleryImages = [];
-  }
-  renderCoverPreview();
-  renderGalleryPreview();
-  document.getElementById('product-modal').classList.add('active');
-}
-
-function renderCoverPreview() {
-  const c = document.getElementById('cover-preview');
-  if (!editingCoverImage) { c.innerHTML = ''; return; }
-  c.innerHTML = `<div class="cover-preview" style="width:200px;height:120px"><img src="${editingCoverImage}" style="width:100%;height:100%;object-fit:cover"><button class="img-del" onclick="deleteCover()" style="width:22px;height:22px;font-size:14px">×</button></div>`;
-}
-
-function deleteCover() { editingCoverImage = null; renderCoverPreview(); }
-
-function handleCoverUpload(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  if (file.size > 3 * 1024 * 1024) { showToast('图片不能超过3MB', 'error'); return; }
-  const reader = new FileReader();
-  reader.onload = e => { editingCoverImage = e.target.result; renderCoverPreview(); };
-  reader.readAsDataURL(file);
-  event.target.value = '';
-}
-
-function renderGalleryPreview() {
-  const c = document.getElementById('gallery-preview');
-  c.innerHTML = editingGalleryImages.map((src, i) => 
-    `<div class="img-thumb" style="width:80px;height:80px"><img src="${src}" alt=""><button class="img-del" onclick="deleteGalleryImage(${i})">×</button></div>`
-  ).join('');
-}
-
-function deleteGalleryImage(i) { editingGalleryImages.splice(i, 1); renderGalleryPreview(); }
-
-function handleGalleryUpload(event) {
-  const files = Array.from(event.target.files);
-  files.forEach(file => {
-    if (file.size > 3 * 1024 * 1024) { showToast(`${file.name} 超过3MB`, 'error'); return; }
+function fileToBase64(file) {
+  return new Promise((resolve) => {
     const reader = new FileReader();
-    reader.onload = e => { editingGalleryImages.push(e.target.result); renderGalleryPreview(); };
+    reader.onload = () => resolve(reader.result);
     reader.readAsDataURL(file);
   });
-  event.target.value = '';
 }
 
-function saveProduct() {
-  const id = document.getElementById('product-id').value;
-  const name = document.getElementById('product-name').value.trim();
-  if (!name) { showToast('请输入商品名称', 'error'); return; }
-  const specsText = document.getElementById('product-specs').value.trim();
-  const featuresText = document.getElementById('product-features').value.trim();
-  const specs = specsText ? specsText.split('\n').filter(l => l.trim()).map(l => { const [label, ...val] = l.split('|'); return { label: label.trim(), value: val.join('|').trim() }; }) : [];
-  const features = featuresText ? featuresText.split('\n').filter(l => l.trim()).map(l => { const [icon, title, ...desc] = l.split('|'); return { icon: (icon||'sparkle').trim(), title: (title||'').trim(), desc: desc.join('|').trim() }; }) : [];
-  const prods = getProducts();
-  if (id) {
-    const idx = prods.findIndex(p => p.id === id);
-    if (idx >= 0) {
-      prods[idx] = { ...prods[idx],
-        name, category: document.getElementById('product-category').value,
-        modelType: document.getElementById('product-modelType').value,
-        gradient: document.getElementById('product-gradient').value.trim() || 'linear-gradient(145deg, #333, #666)',
-        coverImage: editingCoverImage,
-        description: document.getElementById('product-description').value.trim(),
-        specs, features,
-        detailDescription: document.getElementById('product-detailDesc').value.trim(),
-        galleryImages: editingGalleryImages
-      };
-    }
-  } else {
-    prods.push({ id: 'p' + Date.now(), name, category: document.getElementById('product-category').value,
-      modelType: document.getElementById('product-modelType').value,
-      gradient: document.getElementById('product-gradient').value.trim() || 'linear-gradient(145deg, #333, #666)',
-      coverImage: editingCoverImage,
-      description: document.getElementById('product-description').value.trim(),
-      specs, features,
-      detailDescription: document.getElementById('product-detailDesc').value.trim(),
-      galleryImages: editingGalleryImages
-    });
-  }
-  saveProducts(prods);
-  closeProductModal();
-  renderProducts();
-  showToast('商品保存成功');
+function renderDashboard() {
+  const glbCount = products.filter(p => p.modelType && p.modelType.startsWith('glb:')).length;
+  const coverCount = products.filter(p => p.coverImage).length;
+  document.getElementById('page-content').innerHTML = `
+    <div class="topbar"><h1>仪表盘</h1></div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-icon" style="background:rgba(212,175,55,0.1);color:#D4AF37">🛍️</div><div class="stat-info"><h3>${products.length}</h3><p>商品总数</p></div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:rgba(33,150,243,0.1);color:#2196F3">🏷️</div><div class="stat-info"><h3>${categories.length - 1}</h3><p>分类数量</p></div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:rgba(156,39,176,0.1);color:#9C27B0">📦</div><div class="stat-info"><h3>${glbCount}</h3><p>GLB 3D模型</p></div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:rgba(76,175,80,0.1);color:#4CAF50">🖼️</div><div class="stat-info"><h3>${coverCount}</h3><p>已设封面</p></div></div>
+    </div>
+    <div class="card"><div class="card-header"><h2>快捷操作</h2></div><div class="card-body">
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="navTo('products')">➕ 添加商品</button>
+        <button class="btn btn-info" onclick="navTo('contact')">📞 设置联系方式</button>
+        <button class="btn btn-outline" onclick="navTo('data')">💾 导出数据</button>
+        <a href="index.html" class="btn btn-success">👁️ 预览小程序</a>
+      </div>
+    </div></div>
+    <div class="card"><div class="card-header"><h2>3D模型说明</h2></div><div class="card-body">
+      <div class="glb-info">
+        <strong>如何添加真实3D模型？</strong><br>
+        1. 使用 <a href="https://lumalabs.ai" target="_blank">Luma AI</a> 或 <a href="https://play.google.com/store/apps/details?id=com.kiri.engine" target="_blank">Kiri Engine</a> 从照片生成3D模型<br>
+        2. 下载 GLB 格式的3D模型文件<br>
+        3. 在商品管理中编辑商品，上传 GLB 文件或填写 GLB 文件URL<br>
+        4. 客户在前台即可360°查看真实3D商品
+      </div>
+    </div></div>
+  `;
 }
 
-function closeProductModal() { document.getElementById('product-modal').classList.remove('active'); }
-
-function deleteProduct(id) {
-  if (!confirm('确定删除此商品？')) return;
-  const prods = getProducts().filter(p => p.id !== id);
-  saveProducts(prods);
-  renderProducts();
-  showToast('商品已删除');
-}
-
-// ======================== 分类管理 ========================
-function renderCategories() {
-  const cats = getCategories(), prods = getProducts();
-  const tbody = document.getElementById('category-tbody');
-  if (cats.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="empty">暂无分类</td></tr>'; return; }
-  tbody.innerHTML = cats.map(c => {
-    const count = prods.filter(p => p.category === c.id).length;
+function renderProducts() {
+  const search = document.getElementById('product-search')?.value || '';
+  const filterCat = document.getElementById('product-filter')?.value || 'all';
+  let list = [...products];
+  if (search) list = list.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
+  if (filterCat !== 'all') list = list.filter(p => p.category === filterCat);
+  const catOptions = categories.map(c => `<option value="${c.id}" ${c.id === filterCat ? 'selected' : ''}>${c.name}</option>`).join('');
+  const rows = list.map(p => {
+    const isGlb = p.modelType && p.modelType.startsWith('glb:');
+    const thumb = p.coverImage ? `<img src="${p.coverImage}" style="width:48px;height:48px;border-radius:8px;object-fit:cover">` : `<div style="width:48px;height:48px;border-radius:8px;background:${p.gradient};display:flex;align-items:center;justify-content:center">💡</div>`;
     return `<tr>
-      <td><code>${c.id}</code></td>
-      <td style="font-weight:600">${c.name}</td>
-      <td>${count}</td>
-      <td>${c.id === 'all' ? '<span style="color:var(--text-3)">默认分类</span>' : `<button class="btn btn-info btn-sm" onclick="openCategoryModal('${c.id}')">编辑</button> <button class="btn btn-danger btn-sm" onclick="deleteCategory('${c.id}')">删除</button>`}</td>
+      <td>${thumb}</td>
+      <td style="font-weight:600">${p.name}</td>
+      <td>${categories.find(c => c.id === p.category)?.name || p.category}</td>
+      <td>${isGlb ? '<span class="tag tag-glb">GLB模型</span>' : '<span class="tag tag-procedural">程序模型</span>'}</td>
+      <td>${p.coverImage ? '✅' : '—'}</td>
+      <td><button class="btn btn-sm btn-primary" onclick="editProduct('${p.id}')">编辑</button> <button class="btn btn-sm btn-danger" onclick="deleteProduct('${p.id}')">删除</button></td>
     </tr>`;
   }).join('');
+  document.getElementById('page-content').innerHTML = `
+    <div class="topbar"><h1>商品管理</h1><button class="btn btn-primary" onclick="editProduct()">➕ 添加商品</button></div>
+    <div class="card"><div class="card-body">
+      <div class="search-bar">
+        <input type="text" id="product-search" placeholder="搜索商品名称..." value="${search}" oninput="renderProducts()">
+        <select id="product-filter" onchange="renderProducts()">${catOptions}</select>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>图片</th><th>商品名称</th><th>分类</th><th>3D模型</th><th>封面</th><th>操作</th></tr></thead>
+        <tbody>${rows || '<tr><td colspan="6" class="empty">暂无商品</td></tr>'}</tbody>
+      </table></div>
+    </div></div>
+  `;
 }
 
-function openCategoryModal(id) {
-  if (id) {
-    const c = getCategories().find(x => x.id === id);
-    if (!c) return;
-    document.getElementById('category-modal-title').textContent = '编辑分类';
-    document.getElementById('category-id').value = c.id;
-    document.getElementById('category-new-id').value = c.id;
-    document.getElementById('category-name').value = c.name;
-  } else {
-    document.getElementById('category-modal-title').textContent = '添加分类';
-    document.getElementById('category-id').value = '';
-    document.getElementById('category-new-id').value = '';
-    document.getElementById('category-name').value = '';
-  }
-  document.getElementById('category-modal').classList.add('active');
+function editProduct(id) {
+  const p = id ? products.find(x => x.id === id) : {};
+  const isGlb = p.modelType && p.modelType.startsWith('glb:');
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `<div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">×</button>
+    <h2>${id ? '编辑商品' : '添加商品'}</h2>
+    <div class="form-group"><label class="form-label">商品名称 *</label><input class="form-input" id="p-name" value="${p.name || ''}" placeholder="如：Crystal Chandelier Aurora"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">分类</label><select class="form-select" id="p-category">${categories.filter(c=>c.id!=='all').map(c=>`<option value="${c.id}" ${c.id===p.category?'selected':''}>${c.name}</option>`).join('')}</select></div>
+      <div class="form-group"><label class="form-label">背景渐变</label><input class="form-input" id="p-gradient" value="${p.gradient || 'linear-gradient(135deg,#F5F5F5,#E0E0E0)'}" placeholder="linear-gradient(135deg,#F5F5F5,#E0E0E0)"></div>
+    </div>
+    <div class="form-group"><label class="form-label">商品描述</label><textarea class="form-textarea" id="p-desc" placeholder="简短描述">${p.description || ''}</textarea></div>
+
+    <div class="form-group">
+      <label class="form-label">3D模型设置</label>
+      <div class="glb-toggle">
+        <button type="button" id="glb-btn-upload" class="${isGlb ? '' : 'active'}" onclick="switchModelType('procedural')">程序化模型</button>
+        <button type="button" id="glb-btn-url" class="${isGlb ? 'active' : ''}" onclick="switchModelType('glb')">GLB 3D模型文件</button>
+      </div>
+      <div id="procedural-section" style="display:${isGlb ? 'none' : 'block'}">
+        <select class="form-select" id="p-modelType">
+          <option value="chandelier" ${p.modelType==='chandelier'?'selected':''}>吊灯 Chandelier</option>
+          <option value="table-lamp" ${p.modelType==='table-lamp'?'selected':''}>台灯 Table Lamp</option>
+          <option value="floor-lamp" ${p.modelType==='floor-lamp'?'selected':''}>落地灯 Floor Lamp</option>
+          <option value="wall-lamp" ${p.modelType==='wall-lamp'?'selected':''}>壁灯 Wall Lamp</option>
+          <option value="ceiling-lamp" ${p.modelType==='ceiling-lamp'?'selected':''}>吸顶灯 Ceiling Lamp</option>
+        </select>
+      </div>
+      <div id="glb-section" style="display:${isGlb ? 'block' : 'none'}">
+        <div class="glb-toggle">
+          <button type="button" id="glb-mode-file" class="active" onclick="switchGlbMode('file')">上传文件</button>
+          <button type="button" id="glb-mode-url" onclick="switchGlbMode('url')">填写URL</button>
+        </div>
+        <div id="glb-file-area">
+          <div class="upload-area" onclick="document.getElementById('glb-file-input').click()">
+            <div style="font-size:24px;margin-bottom:6px">📦</div>
+            <div>点击上传 GLB 3D模型文件</div>
+            <div style="font-size:12px;color:var(--text-3);margin-top:4px">支持 .glb 格式，建议3MB以内</div>
+            <input type="file" id="glb-file-input" accept=".glb,model/gltf-binary" style="display:none" onchange="handleGlbUpload(this)">
+          </div>
+          <div id="glb-file-info" style="display:none;margin-top:8px;padding:10px;background:#E3F2FD;border-radius:8px;font-size:12px;color:#1565C0">
+            <strong>✅ GLB文件已选择</strong><br><span id="glb-file-name"></span><br><span id="glb-file-size"></span>
+          </div>
+        </div>
+        <div id="glb-url-area" style="display:none">
+          <input class="form-input" id="p-glb-url" value="${isGlb ? p.modelType.substring(4) : ''}" placeholder="https://example.com/model.glb">
+          <div style="font-size:12px;color:var(--text-3);margin-top:4px">将GLB文件上传到GitHub仓库，使用 raw URL。适用于大于3MB的文件。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">商品封面图片</label>
+      <div class="upload-area" onclick="document.getElementById('cover-input').click()">
+        ${p.coverImage ? `<img src="${p.coverImage}">` : '<div style="font-size:24px;margin-bottom:6px">🖼️</div><div>点击上传商品封面图片</div>'}
+        <input type="file" id="cover-input" accept="image/*" style="display:none" onchange="handleCoverUpload(this)">
+      </div>
+    </div>
+
+    <div class="form-group"><label class="form-label">商品详情介绍</label><textarea class="form-textarea" id="p-detail" placeholder="详细的产品介绍文字，支持多段（用空行分段）" style="min-height:120px">${p.detailDescription || ''}</textarea></div>
+
+    <div class="form-group">
+      <label class="form-label">相关图片（可多选）</label>
+      <div class="upload-area" onclick="document.getElementById('gallery-input').click()">
+        <div style="font-size:24px;margin-bottom:6px">📸</div><div>点击上传多张商品图片</div>
+        <input type="file" id="gallery-input" accept="image/*" multiple style="display:none" onchange="handleGalleryUpload(this)">
+      </div>
+      <div class="upload-preview" id="gallery-preview">
+        ${(p.galleryImages||[]).map((src,i) => `<div style="position:relative"><img src="${src}"><button onclick="removeGalleryImage(${i});return false" style="position:absolute;top:-4px;right:-4px;width:18px;height:18px;border-radius:50%;background:var(--danger);color:#fff;border:none;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center">×</button></div>`).join('')}
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px">
+      <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">取消</button>
+      <button class="btn btn-primary" onclick="saveProduct('${id || ''}')">保存</button>
+    </div>
+  </div>`;
+  overlay.addEventListener('click', () => overlay.remove());
+  document.body.appendChild(overlay);
+  window._currentGallery = p.galleryImages ? [...p.galleryImages] : [];
+  window._currentGlbData = isGlb ? p.modelType.substring(4) : '';
 }
 
-function closeCategoryModal() { document.getElementById('category-modal').classList.remove('active'); }
-
-function saveCategory() {
-  const id = document.getElementById('category-id').value;
-  const name = document.getElementById('category-name').value.trim();
-  if (!name) { showToast('请输入分类名称', 'error'); return; }
-  const cats = getCategories();
-  if (id) {
-    const idx = cats.findIndex(c => c.id === id);
-    if (idx >= 0) cats[idx].name = name;
-  } else {
-    const newId = document.getElementById('category-new-id').value.trim() || 'cat' + Date.now();
-    if (cats.find(c => c.id === newId)) { showToast('分类ID已存在', 'error'); return; }
-    cats.push({ id: newId, name });
-  }
-  saveCategories(cats);
-  closeCategoryModal();
-  renderCategories();
-  // 更新筛选器
-  const filterSel = document.getElementById('filter-category');
-  filterSel.innerHTML = '<option value="">全部分类</option>';
-  showToast('分类保存成功');
+function switchModelType(type) {
+  document.getElementById('procedural-section').style.display = type === 'procedural' ? 'block' : 'none';
+  document.getElementById('glb-section').style.display = type === 'glb' ? 'block' : 'none';
+  document.getElementById('glb-btn-upload').classList.toggle('active', type === 'procedural');
+  document.getElementById('glb-btn-url').classList.toggle('active', type === 'glb');
+}
+function switchGlbMode(mode) {
+  document.getElementById('glb-file-area').style.display = mode === 'file' ? 'block' : 'none';
+  document.getElementById('glb-url-area').style.display = mode === 'url' ? 'block' : 'none';
+  document.getElementById('glb-mode-file').classList.toggle('active', mode === 'file');
+  document.getElementById('glb-mode-url').classList.toggle('active', mode === 'url');
 }
 
-function deleteCategory(id) {
-  const prods = getProducts();
-  if (prods.some(p => p.category === id)) { showToast('该分类下有商品，无法删除', 'error'); return; }
-  if (!confirm('确定删除此分类？')) return;
-  saveCategories(getCategories().filter(c => c.id !== id));
-  renderCategories();
-  showToast('分类已删除');
-}
-
-// ======================== 联系方式管理 ========================
-const DEFAULT_CONTACT = { phone: '', wechat: '', qq: '', email: '', address: '', facebook: '', instagram: '', qrcode: '' };
-
-function getContactInfo() {
-  try { return { ...DEFAULT_CONTACT, ...JSON.parse(localStorage.getItem('lamp_contact_info') || '{}') }; }
-  catch(e) { return {...DEFAULT_CONTACT}; }
-}
-
-function loadContactInfo() {
-  const info = getContactInfo();
-  document.getElementById('contact-phone').value = info.phone || '';
-  document.getElementById('contact-wechat').value = info.wechat || '';
-  document.getElementById('contact-qq').value = info.qq || '';
-  document.getElementById('contact-email').value = info.email || '';
-  document.getElementById('contact-address').value = info.address || '';
-  document.getElementById('contact-facebook').value = info.facebook || '';
-  document.getElementById('contact-instagram').value = info.instagram || '';
-  renderQRCodePreview(info.qrcode);
-}
-
-let editingQRCode = null;
-
-function renderQRCodePreview(qrcode) {
-  editingQRCode = qrcode || null;
-  const c = document.getElementById('qrcode-preview');
-  if (!qrcode) { c.innerHTML = ''; return; }
-  c.innerHTML = `<div class="img-thumb" style="width:120px;height:120px"><img src="${qrcode}" alt="二维码"><button class="img-del" onclick="deleteQRCode()" style="width:22px;height:22px;font-size:14px">×</button></div>`;
-}
-
-function deleteQRCode() { editingQRCode = null; renderQRCodePreview(null); }
-
-function handleQRCodeUpload(event) {
-  const file = event.target.files[0];
+async function handleGlbUpload(input) {
+  const file = input.files[0];
   if (!file) return;
-  if (file.size > 2 * 1024 * 1024) { showToast('图片不能超过2MB', 'error'); return; }
-  const reader = new FileReader();
-  reader.onload = e => { renderQRCodePreview(e.target.result); };
-  reader.readAsDataURL(file);
-  event.target.value = '';
+  if (file.size > 3 * 1024 * 1024) {
+    showToast('文件超过3MB，请使用URL方式或压缩文件', true);
+    return;
+  }
+  const base64 = await fileToBase64(file);
+  window._currentGlbData = base64;
+  document.getElementById('glb-file-info').style.display = 'block';
+  document.getElementById('glb-file-name').textContent = '文件名: ' + file.name;
+  document.getElementById('glb-file-size').textContent = '大小: ' + (file.size / 1024).toFixed(1) + ' KB';
+  showToast('GLB文件已加载');
 }
 
-function saveContactInfo() {
-  const info = {
-    phone: document.getElementById('contact-phone').value.trim(),
-    wechat: document.getElementById('contact-wechat').value.trim(),
-    qq: document.getElementById('contact-qq').value.trim(),
-    email: document.getElementById('contact-email').value.trim(),
-    address: document.getElementById('contact-address').value.trim(),
-    facebook: document.getElementById('contact-facebook').value.trim(),
-    instagram: document.getElementById('contact-instagram').value.trim(),
-    qrcode: editingQRCode || ''
-  };
-  localStorage.setItem('lamp_contact_info', JSON.stringify(info));
+async function handleCoverUpload(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const base64 = await fileToBase64(file);
+  const area = input.parentElement;
+  area.innerHTML = `<img src="${base64}"><input type="file" id="cover-input" accept="image/*" style="display:none" onchange="handleCoverUpload(this)">`;
+  window._currentCover = base64;
+}
+
+async function handleGalleryUpload(input) {
+  const files = Array.from(input.files);
+  for (const file of files) {
+    const base64 = await fileToBase64(file);
+    window._currentGallery.push(base64);
+  }
+  updateGalleryPreview();
+}
+function updateGalleryPreview() {
+  document.getElementById('gallery-preview').innerHTML = window._currentGallery.map((src, i) =>
+    `<div style="position:relative"><img src="${src}"><button onclick="removeGalleryImage(${i});return false" style="position:absolute;top:-4px;right:-4px;width:18px;height:18px;border-radius:50%;background:var(--danger);color:#fff;border:none;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center">×</button></div>`
+  ).join('');
+}
+function removeGalleryImage(index) {
+  window._currentGallery.splice(index, 1);
+  updateGalleryPreview();
+}
+
+function saveProduct(id) {
+  const name = document.getElementById('p-name').value.trim();
+  if (!name) { showToast('请输入商品名称', true); return; }
+  const category = document.getElementById('p-category').value;
+  const gradient = document.getElementById('p-gradient').value.trim() || 'linear-gradient(135deg,#F5F5F5,#E0E0E0)';
+  const description = document.getElementById('p-desc').value.trim();
+  const detailDescription = document.getElementById('p-detail').value.trim();
+  const glbSectionVisible = document.getElementById('glb-section').style.display !== 'none';
+  let modelType;
+  if (glbSectionVisible) {
+    const glbUrlVisible = document.getElementById('glb-url-area').style.display !== 'none';
+    if (glbUrlVisible) {
+      const url = document.getElementById('p-glb-url').value.trim();
+      modelType = url ? 'glb:' + url : 'chandelier';
+    } else {
+      modelType = window._currentGlbData ? 'glb:' + window._currentGlbData : 'chandelier';
+    }
+  } else {
+    modelType = document.getElementById('p-modelType').value;
+  }
+  const coverImage = window._currentCover || '';
+  const galleryImages = window._currentGallery || [];
+  const existing = id ? products.find(x => x.id === id) : null;
+  const specs = existing?.specs || [{label:'Material',value:''},{label:'Size',value:''},{label:'Light Source',value:''},{label:'Wattage',value:''}];
+  const features = existing?.features || [];
+  if (existing) {
+    existing.name = name; existing.category = category; existing.gradient = gradient;
+    existing.description = description; existing.modelType = modelType;
+    existing.coverImage = coverImage || existing.coverImage;
+    existing.detailDescription = detailDescription;
+    existing.galleryImages = galleryImages.length ? galleryImages : existing.galleryImages;
+  } else {
+    products.push({ id: 'p' + Date.now(), name, category, modelType, gradient, description, specs, features, detailDescription, galleryImages, coverImage });
+  }
+  saveProducts();
+  document.querySelector('.modal-overlay')?.remove();
+  showToast('保存成功');
+  renderProducts();
+}
+
+function deleteProduct(id) {
+  if (!confirm('确认删除此商品？')) return;
+  products = products.filter(p => p.id !== id);
+  saveProducts();
+  showToast('已删除');
+  renderProducts();
+}
+
+function renderCategories() {
+  const rows = categories.filter(c => c.id !== 'all').map(c =>
+    `<tr><td style="font-weight:600">${c.name}</td><td>${products.filter(p => p.category === c.id).length}</td>
+    <td><button class="btn btn-sm btn-primary" onclick="editCategory('${c.id}')">编辑</button> <button class="btn btn-sm btn-danger" onclick="deleteCategory('${c.id}')">删除</button></td></tr>`
+  ).join('');
+  document.getElementById('page-content').innerHTML = `
+    <div class="topbar"><h1>分类管理</h1><button class="btn btn-primary" onclick="editCategory()">➕ 添加分类</button></div>
+    <div class="card"><div class="card-body"><div class="table-wrap"><table>
+      <thead><tr><th>分类名称</th><th>商品数量</th><th>操作</th></tr></thead>
+      <tbody>${rows || '<tr><td colspan="3" class="empty">暂无分类</td></tr>'}</tbody>
+    </table></div></div></div>
+  `;
+}
+function editCategory(id) {
+  const c = id ? categories.find(x => x.id === id) : {};
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `<div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">×</button>
+    <h2>${id ? '编辑分类' : '添加分类'}</h2>
+    <div class="form-group"><label class="form-label">分类名称 *</label><input class="form-input" id="cat-name" value="${c.name || ''}" placeholder="如：Wall Lamp"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px">
+      <button class="btn btn-outline" onclick="this.closest('.modal-overlay').remove()">取消</button>
+      <button class="btn btn-primary" onclick="saveCategory('${id || ''}')">保存</button>
+    </div>
+  </div>`;
+  overlay.addEventListener('click', () => overlay.remove());
+  document.body.appendChild(overlay);
+}
+function saveCategory(id) {
+  const name = document.getElementById('cat-name').value.trim();
+  if (!name) { showToast('请输入分类名称', true); return; }
+  const catId = id || 'cat-' + Date.now();
+  if (id) {
+    const c = categories.find(x => x.id === id);
+    if (c) c.name = name;
+  } else {
+    categories.push({ id: catId, name });
+  }
+  saveCategories();
+  document.querySelector('.modal-overlay')?.remove();
+  showToast('保存成功');
+  renderCategories();
+}
+function deleteCategory(id) {
+  if (products.filter(p => p.category === id).length > 0) { showToast('该分类下有商品，无法删除', true); return; }
+  if (!confirm('确认删除此分类？')) return;
+  categories = categories.filter(c => c.id !== id);
+  saveCategories();
+  showToast('已删除');
+  renderCategories();
+}
+
+function renderContact() {
+  document.getElementById('page-content').innerHTML = `
+    <div class="topbar"><h1>联系方式管理</h1></div>
+    <div class="card"><div class="card-body">
+      <div class="contact-item"><div class="contact-icon">📞</div><div class="contact-input"><label>客服电话</label><input id="ci-phone" value="${contactInfo.phone || ''}" placeholder="400-xxx-xxxx"></div></div>
+      <div class="contact-item"><div class="contact-icon">💬</div><div class="contact-input"><label>微信号</label><input id="ci-wechat" value="${contactInfo.wechat || ''}" placeholder="elephantlux_kefu"></div></div>
+      <div class="contact-item"><div class="contact-icon">🐧</div><div class="contact-input"><label>QQ号</label><input id="ci-qq" value="${contactInfo.qq || ''}" placeholder="123456789"></div></div>
+      <div class="contact-item"><div class="contact-icon">📧</div><div class="contact-input"><label>邮箱</label><input id="ci-email" value="${contactInfo.email || ''}" placeholder="service@elephantlux.com"></div></div>
+      <div class="contact-item"><div class="contact-icon">📍</div><div class="contact-input"><label>公司地址</label><input id="ci-address" value="${contactInfo.address || ''}" placeholder="Guangzhou, China"></div></div>
+      <div class="contact-item"><div class="contact-icon">📘</div><div class="contact-input"><label>Facebook 主页链接</label><input id="ci-facebook" value="${contactInfo.facebook || ''}" placeholder="https://facebook.com/elephantlux"></div></div>
+      <div class="contact-item"><div class="contact-icon">📷</div><div class="contact-input"><label>Instagram 主页链接</label><input id="ci-instagram" value="${contactInfo.instagram || ''}" placeholder="https://instagram.com/elephantlux"></div></div>
+      <div class="contact-item"><div class="contact-icon">📱</div><div class="contact-input"><label>客服微信二维码</label>
+        <div class="upload-area" onclick="document.getElementById('qrcode-input').click()" style="margin-top:6px">
+          ${contactInfo.qrcode ? `<img src="${contactInfo.qrcode}">` : '<div>点击上传二维码图片</div>'}
+          <input type="file" id="qrcode-input" accept="image/*" style="display:none" onchange="handleQrcodeUpload(this)">
+        </div>
+      </div></div>
+      <button class="btn btn-primary" onclick="saveContact()" style="margin-top:16px">💾 保存设置</button>
+    </div></div>
+  `;
+}
+async function handleQrcodeUpload(input) {
+  const file = input.files[0]; if (!file) return;
+  const base64 = await fileToBase64(file);
+  contactInfo.qrcode = base64;
+  input.parentElement.innerHTML = `<img src="${base64}"><input type="file" id="qrcode-input" accept="image/*" style="display:none" onchange="handleQrcodeUpload(this)">`;
+}
+function saveContact() {
+  contactInfo.phone = document.getElementById('ci-phone').value.trim();
+  contactInfo.wechat = document.getElementById('ci-wechat').value.trim();
+  contactInfo.qq = document.getElementById('ci-qq').value.trim();
+  contactInfo.email = document.getElementById('ci-email').value.trim();
+  contactInfo.address = document.getElementById('ci-address').value.trim();
+  contactInfo.facebook = document.getElementById('ci-facebook').value.trim();
+  contactInfo.instagram = document.getElementById('ci-instagram').value.trim();
+  saveContactInfo();
   showToast('联系方式已保存');
 }
 
-// ======================== 数据管理 ========================
+function renderData() {
+  document.getElementById('page-content').innerHTML = `
+    <div class="topbar"><h1>数据管理</h1></div>
+    <div class="card"><div class="card-header"><h2>数据导出 / 导入</h2></div><div class="card-body">
+      <p style="color:var(--text-2);margin-bottom:16px">定期导出数据备份，防止浏览器清除缓存导致数据丢失。</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-success" onclick="exportData()">📥 导出数据 (JSON)</button>
+        <button class="btn btn-info" onclick="document.getElementById('import-file').click()">📤 导入数据<input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(this)"></button>
+        <button class="btn btn-danger" onclick="resetData()">🔄 恢复默认数据</button>
+      </div>
+    </div></div>
+    <div class="card"><div class="card-header"><h2>数据统计</h2></div><div class="card-body">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-icon" style="background:rgba(212,175,55,0.1);color:#D4AF37">📦</div><div class="stat-info"><h3>${JSON.stringify(products).length}</h3><p>数据大小 (bytes)</p></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:rgba(33,150,243,0.1);color:#2196F3">🖼️</div><div class="stat-info"><h3>${products.reduce((s,p)=>s+(p.galleryImages?.length||0),0)}</h3><p>图片总数</p></div></div>
+      </div>
+    </div></div>
+  `;
+}
 function exportData() {
-  const data = { categories: getCategories(), products: getProducts(), contactInfo: getContactInfo(), exportTime: new Date().toISOString() };
+  const data = { products, categories, contactInfo, exportDate: new Date().toISOString() };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `elephantlux-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.download = 'elephantlux-backup-' + new Date().toISOString().slice(0, 10) + '.json';
   a.click();
   showToast('数据已导出');
 }
-
-function importData(event) {
-  const file = event.target.files[0];
-  if (!file) return;
+function importData(input) {
+  const file = input.files[0]; if (!file) return;
   const reader = new FileReader();
-  reader.onload = e => {
+  reader.onload = () => {
     try {
-      const data = JSON.parse(e.target.result);
-      if (data.categories) saveCategories(data.categories);
-      if (data.products) saveProducts(data.products);
-      if (data.contactInfo) localStorage.setItem('lamp_contact_info', JSON.stringify(data.contactInfo));
+      const data = JSON.parse(reader.result);
+      if (data.products) products = data.products;
+      if (data.categories) categories = data.categories;
+      if (data.contactInfo) contactInfo = data.contactInfo;
+      saveProducts(); saveCategories(); saveContactInfo();
       showToast('数据导入成功');
-      renderDashboard();
-    } catch(err) { showToast('导入失败：文件格式错误', 'error'); }
+      renderData();
+    } catch(e) { showToast('导入失败：文件格式错误', true); }
   };
   reader.readAsText(file);
-  event.target.value = '';
 }
-
 function resetData() {
-  if (!confirm('确定恢复默认数据？所有自定义数据将丢失！')) return;
-  localStorage.removeItem('lamp_categories');
-  localStorage.removeItem('lamp_products');
-  localStorage.removeItem('lamp_contact_info');
+  if (!confirm('确认恢复默认数据？所有自定义内容将丢失！')) return;
+  products = JSON.parse(JSON.stringify(defaultProducts));
+  categories = JSON.parse(JSON.stringify(defaultCategories));
+  contactInfo = {};
+  saveProducts(); saveCategories(); saveContactInfo();
   showToast('已恢复默认数据');
-  renderDashboard();
+  renderData();
 }
 
-// ======================== Toast ========================
-function showToast(msg, type = 'success') {
-  const toast = document.getElementById('toast');
-  toast.textContent = msg;
-  toast.className = `toast ${type} show`;
-  setTimeout(() => toast.classList.remove('show'), 2500);
+function navTo(page) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.page === page));
+  switch(page) {
+    case 'dashboard': renderDashboard(); break;
+    case 'products': renderProducts(); break;
+    case 'categories': renderCategories(); break;
+    case 'contact': renderContact(); break;
+    case 'data': renderData(); break;
+  }
 }
 
-// ======================== 初始化 ========================
+document.querySelectorAll('.nav-item').forEach(n => n.addEventListener('click', () => navTo(n.dataset.page)));
+loadData();
 renderDashboard();
 </script>
 </body>
