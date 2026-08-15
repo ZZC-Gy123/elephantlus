@@ -151,7 +151,14 @@ function loadData() {
 }
 
 function saveData() {
-  localStorage.setItem(DATA_KEY, JSON.stringify({ products, categories, version: DATA_VERSION }));
+  try {
+    localStorage.setItem(DATA_KEY, JSON.stringify({ products, categories, version: DATA_VERSION }));
+    return true;
+  } catch(e) {
+    console.error('Save failed:', e);
+    showToast('保存失败：存储空间不足，请减少图片数量或使用较小图片', true);
+    return false;
+  }
 }
 
 function saveContactInfo() {
@@ -168,8 +175,35 @@ function showToast(msg, isError) {
 
 function fileToBase64(file) {
   return new Promise((resolve) => {
+    if (!file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.readAsDataURL(file);
+      return;
+    }
     const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const maxW = 800, maxH = 800;
+        let w = img.width, h = img.height;
+        if (w > maxW || h > maxH) {
+          const ratio = Math.min(maxW / w, maxH / h);
+          w = Math.round(w * ratio);
+          h = Math.round(h * ratio);
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        const quality = file.size > 1024 * 1024 ? 0.6 : 0.8;
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = () => resolve(reader.result);
+      img.src = reader.result;
+    };
+    reader.onerror = () => resolve('');
     reader.readAsDataURL(file);
   });
 }
@@ -452,6 +486,7 @@ function removeGalleryImage(index) {
 }
 
 function saveProduct(id) {
+  try {
   const name = document.getElementById('p-name').value.trim();
   if (!name) { showToast('请输入商品名称', true); return; }
   const category = document.getElementById('p-category').value;
@@ -486,10 +521,15 @@ function saveProduct(id) {
   } else {
     products.push({ id: 'p' + Date.now(), name, category, modelType, gradient, description, specs, features, detailDescription, galleryImages, coverImage });
   }
-  saveData();
+  const saved = saveData();
+  if (!saved) return;
   document.querySelector('.modal-overlay')?.remove();
   showToast('保存成功！前台小程序将同步更新');
   renderProducts();
+  } catch(e) {
+    console.error('saveProduct error:', e);
+    showToast('保存出错：' + (e.message || '未知错误'), true);
+  }
 }
 
 function deleteProduct(id) {
